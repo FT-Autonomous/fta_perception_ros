@@ -1,0 +1,8 @@
+include_string () {
+    find -type d -path './build/*' -name '*cpp' \
+    	 | awk 'BEGIN{printf "%s", "-std=c++17,-I/usr/include/opencv4/,-I/opt/ros2/galactic/include/,"} {printf "-I%s,", $0}' \
+	 | sed -e 's/,$//' \
+	 | sed -e 's/-I\./-I/'
+}
+
+echo -e "CompileFlags:\n  Add: [$(include_string)]" > .clangd
