@@ -1,3 +1,16 @@
+# ROS
+
 **/install
 **/build
 **/log
+**/.cache
+
+# Emacs
+
+.clangd
+**/#*
+**/.#*
+**/*~
+
+# Python
+**/__pycache__
