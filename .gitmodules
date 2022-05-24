@@ -1,0 +1,3 @@
+[submodule "awesome-semantic-segmentation-pytorch"]
+	path = fta
+	url = git@github.com:uzoukwuc/awesome-semantic-segmentation-pytorch.git
