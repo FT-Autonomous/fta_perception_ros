@@ -1,1 +1,4 @@
-![uml.jpg][It looks good. Trust me]
+[![test]][the_rest]
+
+[test]: uml.jpg
+[the_rest]: ?
