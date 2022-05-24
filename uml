@@ -1,0 +1,22 @@
+digraph {
+        graph [splines=ortho]
+        node [style=filled fillcolor=lightgrey]
+
+        zed [label="ZED Sensor"]
+        xyzrgba [label="Color and Depth\nInformation" shape=box]
+
+        zed -> xyzrgba -> rgba -> segment -> mask -> label -> annotated -> cluster -> centers
+        xyzrgba -> depth -> label
+
+        subgraph cluster_fusion {
+                rgba [label="Color Information" shape=box]
+                mask [label="Segmentation Mask" shape=box]
+                segment [label="Image Segmentation Node"]
+                depth [label="Depth Information" shape=box]
+                label [label="Point Clound Labeling\nand Background Removal"]
+                annotated [label="Points belonging to cones" shape=box]
+                cluster [label="Three Dimensional Clustering\nand Top Point Reconstruction"]
+        }
+
+        centers [label="Cone Center Positions" shape=box]
+}
