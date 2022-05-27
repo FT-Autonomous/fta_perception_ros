@@ -1,7 +1,0 @@
-[
-        {
-                "command" : "/usr/bin/clang++",
-                "directory" : "/home/naza/projects/ros/fta_perception_ros",
-                "file" : "src/video_capture/src/video_capture.cpp"
-        }
-]
