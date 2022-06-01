@@ -1,6 +1,3 @@
-#include "rclcpp/client.hpp"
-#include "rclcpp/executors.hpp"
-#include "rclcpp/logging.hpp"
 #include <future>
 #include <ostream>
 #include <vector>
@@ -22,6 +19,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+
 #include <perception_msgs/srv/force_segment.hpp>
 
 using namespace std::chrono_literals;
@@ -45,10 +43,9 @@ private:
     rclcpp::TimerBase::SharedPtr force_segment_future_timer;
     std::shared_future<ForceSegmentClient::SharedResponse> force_segment_future;
     bool waiting;
-
+    
 private:
     void capture_image() {
-	
 	camera.read(this->image_buffer);
 
 	current_ros_image.header.frame_id = std::to_string(this->frame_id++);
@@ -61,9 +58,13 @@ private:
 	auto request = std::make_shared<ForceSegment::Request>();
 	request->input = current_ros_image;
 	waiting = true;
-	this->force_segment_future = this->force_segment_client->async_send_request(request);
-	this->force_segment_future_timer = this->create_wall_timer(5ms, std::bind(&VideoCaptureNode::try_finish, this));
 
+	while (not this->force_segment_client->wait_for_service(1s)) {
+	    RCLCPP_INFO(this->get_logger(), "Force Segment Server not available! Waiting...");
+	}
+	
+	this->force_segment_future = this->force_segment_client->async_send_request(request);
+	this->force_segment_future_timer = this->create_wall_timer(1ms, std::bind(&VideoCaptureNode::try_finish, this));
     }
 
     void try_finish() {
@@ -88,9 +89,6 @@ public:
 	this->depth_publisher = this->create_publisher<Image>("depth", 1);
 	this->shot_clock = this->create_wall_timer(0.5s, std::bind(&VideoCaptureNode::capture_image, this));
 	this->force_segment_client = this->create_client<ForceSegment>("force_segment");
-	while (not this->force_segment_client->wait_for_service(1s)) {
-	    RCLCPP_INFO(this->get_logger(), "Force Segment Server not available! Waiting...");
-	}
     }
 };
 
