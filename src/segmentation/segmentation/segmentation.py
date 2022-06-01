@@ -29,7 +29,7 @@ class Segmentation(Node):
         super().__init__("segmentation")
         self.declare_parameter("fta_path", os.path.join(os.environ['HOME'], "projects", "python", "ft_semantic_segmentation"))
         self.declare_parameter("model", "cgnet")
-        self.declare_parameter("weights", os.path.join(os.environ['HOME'], "downloads", "cgnet.pt"))
+        self.declare_parameter("weights", os.path.join(os.environ['HOME'], "downloads", self.get_parameter('model').get_parameter_value().string_value + ".pth"))
         sys.path.append(self.get_parameter("fta_path").get_parameter_value().string_value)
         import fta
         self.subscription = self.create_subscription(Image, "color", self.segment, 10)
