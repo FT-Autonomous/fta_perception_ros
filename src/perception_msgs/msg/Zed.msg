@@ -1,7 +1,11 @@
-# OpenCV type: CV_8UC3
-# Type as in image_encodings.hpp: BGR8
+# Type
+#  OpenCV: CV_8UC3
+#  ROS C++: TYPE_8UC3
+#  ROS Python: "8UC3"
 sensor_msgs/Image color 
 
-# OpenCV type: CV_32FC3
-# Type as in image_encodings.hpp: TYPE_32FC3
+# Type
+#  OpenCV: CV_32FC3
+#  ROS C++: TYPE_32FC3
+#  ROS Python: "32FC2"
 sensor_msgs/Image depth
