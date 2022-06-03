@@ -1,0 +1,28 @@
+#  A WxHx1 image. There's only one channel. 0 represents background.
+#  Other values represent cone classes. What they refer to doesn't
+#  really matter. All that matters is that cones of different
+#  classes do not end up in the same cluster.
+# Type
+#  OpenCV: CV_8UC1
+#  ROS C++: TYPE_8UC1
+#  ROS Python: "8UC1"
+sensor_msgs/Image segmentation_mask
+
+#  A WxHx3 image of the same size as the segmentation mask.
+#  The channels represent x, y and z rather than r, g and b.
+# Type
+#  OpenCV: CV_32FC3
+#  ROS C++: TYPE_32FC3
+#  ROS Python: "32FC3"
+sensor_msgs/Image points
+
+---
+
+#  A WxHx1 image of the same spatial dimensions as the segmentation
+#  mask. There is only one channel. 0 represents background. Other
+#  values represent separate cones.
+# Type
+#  OpenCV: CV_8UC1
+#  ROS C++: TYPE_8UC1
+#  ROS Python: "8UC1"
+sensor_msgs/Image clusters
