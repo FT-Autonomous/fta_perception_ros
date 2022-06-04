@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'segmentation = segmentation.segmentation:main'
+            'segmentation = segmentation.segmentation:main',
+            'visualize = segmentation.visualize:main'
         ],
     },
 )
