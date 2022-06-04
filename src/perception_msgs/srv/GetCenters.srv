@@ -1,0 +1,4 @@
+sensor_msgs/Image clusters
+sensor_msgs/Image segmentation_mask
+---
+geometry_msgs/Point[] centers
