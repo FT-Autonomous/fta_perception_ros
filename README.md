@@ -1,4 +1,4 @@
-In order to run both the video capture node and the image segmentation node, use `ros2 run ft_peception_synthesis synthesis.launch.py`.
+In order to run both the video capture node and the image segmentation node, use `ros2 launch ft_peception_synthesis visualize.launch.py`.
 Node parameters are controlled using YAML config files in the `config` directory of the `ft_perception_synthesis` package rather than as launch arguments.
 
 You will probably need to change the parameters of the segmentation node.
