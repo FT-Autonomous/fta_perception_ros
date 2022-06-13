@@ -11,6 +11,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Header
 from ament_index_python.packages import get_package_prefix
 from perception_msgs.srv import ForceSegment
+from perception_msgs.msg import Zed
 
 class Segmentation(Node):
     def __init__(self):
@@ -19,7 +20,7 @@ class Segmentation(Node):
         self.declare_parameter("weights", os.path.join(os.environ['HOME'], "downloads", self.get_parameter('model').get_parameter_value().string_value + ".ts"))
         sys.path.append(os.path.join(get_package_prefix('fta'), 'lib', 'fta'))
         import fta
-        self.subscription = self.create_subscription(Image, "color", self.callback, 1)
+        self.subscription = self.create_subscription(Zed, "zed", self.callback, 1)
         self.force_segment = self.create_service(ForceSegment, "force_segment", self.force_segment);
         self.fta = fta
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -29,7 +30,6 @@ class Segmentation(Node):
         
     def segment(self, image):
         cv_image = np.array(image.data).reshape(image.height, image.width, 3)
-        cv_image = self.fta.live.half(self.fta.live.scale(cv_image, 512))
         output = np.uint8(self.fta.live.predict(cv_image, model=self.model, device=self.device))
         return Image(
             header=Header(frame_id=image.header.frame_id),
@@ -42,8 +42,8 @@ class Segmentation(Node):
         response.segmentation_mask = self.segment(request.input)
         return response
         
-    def callback(self, image):
-        self.publisher.publish(self.segment(image))
+    def callback(self, zed):
+        self.publisher.publish(self.segment(zed.color))
 
 def main(args=None):
     rclpy.init(args=args)

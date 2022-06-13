@@ -1,3 +1,5 @@
+#include "rclcpp/time.hpp"
+#include <ctime>
 #include <future>
 #include <ostream>
 #include <vector>
@@ -21,6 +23,7 @@
 #include <opencv2/highgui.hpp>
 
 #include <perception_msgs/srv/force_segment.hpp>
+#include <perception_msgs/msg/zed.hpp>
 
 using namespace std::chrono_literals;
 
@@ -28,29 +31,38 @@ class VideoCaptureNode
     : public rclcpp::Node {
 private:
     using Image = sensor_msgs::msg::Image;
-    using ImagePublisher = rclcpp::Publisher<Image>;
+    using Zed = perception_msgs::msg::Zed;
+    using ZedPublihser = rclcpp::Publisher<Zed>;
 
     unsigned int frame_id;
     cv::VideoCapture camera;
-    Image current_ros_image;
     cv::Mat image_buffer;
-    ImagePublisher::SharedPtr color_publisher;
-    ImagePublisher::SharedPtr depth_publisher;
+    ZedPublihser::SharedPtr publisher;
     rclcpp::TimerBase::SharedPtr shot_clock;
     
 private:
     void capture_image() {
 	camera.read(this->image_buffer);
 
-	Image image;
-	image.header.frame_id = std::to_string(this->frame_id++);
-	image.width = this->image_buffer.cols;
-	image.height = this->image_buffer.rows;
-	image.encoding = sensor_msgs::image_encodings::BGR8;
-	image.step = this->image_buffer.cols * 3;
-	image.data = this->image_buffer.reshape(1, image_buffer.rows * image_buffer.cols * image_buffer.channels());
+	Image color, depth;
+	color.header.frame_id = std::to_string(this->frame_id++);
+	color.width = this->image_buffer.cols;
+	color.height = this->image_buffer.rows;
+	color.encoding = sensor_msgs::image_encodings::BGR8;
+	color.step = this->image_buffer.cols * 3;
+	color.data = this->image_buffer.reshape(1, image_buffer.rows * image_buffer.cols * image_buffer.channels());
 
-	this->color_publisher->publish(image);
+	depth.header.frame_id = color.header.frame_id;
+	depth.width = color.width;
+	depth.height = color.height;
+	depth.encoding = sensor_msgs::image_encodings::TYPE_32FC3;
+	depth.data = cv::Mat3f(color.height, color.width);
+
+	Zed zed_msg;
+	zed_msg.color = color;
+	zed_msg.depth = depth;
+
+	this->publisher->publish(zed_msg);
     }
     
 public:
@@ -61,8 +73,7 @@ public:
 	using namespace std::placeholders;
 	this->declare_parameter<int>("camera", 1);
 	this->camera = cv::VideoCapture(this->get_parameter("camera").get_parameter_value().get<int>());
-	this->color_publisher = this->create_publisher<Image>("color", 1);
-	this->depth_publisher = this->create_publisher<Image>("depth", 1);
+	this->publisher = this->create_publisher<Zed>("zed", 1);
 	this->shot_clock = this->create_wall_timer(0s, std::bind(&VideoCaptureNode::capture_image, this));
     }
 };
