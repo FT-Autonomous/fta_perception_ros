@@ -21,7 +21,7 @@ def generate_launch_description():
             Node(
                 package='segmentation',
                 executable='visualize',
-                parameters=[PathJoinSubstitution([FindPackageShare('ft_perception_synthesis'),'config','visualize.yaml'])]
+                parameters=[PathJoinSubstitution([FindPackageShare('ft_perception_synthesis'), 'config', 'visualize.yaml'])]
             )
         ])
     ])
