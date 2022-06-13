@@ -7,6 +7,10 @@
   <maintainer email="uzoukwuc@tcd.ie">naza</maintainer>
   <license>TODO: License declaration</license>
 
+  <build_depend>perception_msgs</build_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>
