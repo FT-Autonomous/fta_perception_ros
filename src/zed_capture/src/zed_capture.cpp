@@ -65,6 +65,7 @@ public:
 	    color.width = this->rgb.getWidth();
 	    color.height = this->rgb.getHeight();
 	    color.encoding = sensor_msgs::image_encodings::TYPE_8UC3;
+	    color.data.reserve(color.width * color.height);
 	    for (int i = 0; i < color.width * color.height; i++) {
 		auto color_vector = this->rgb.getPtr<sl::uchar4>()[i];
 		color.data.push_back(color_vector[0]);
@@ -76,8 +77,14 @@ public:
 	    depth.width = color.width;
 	    depth.height = color.height;
 	    depth.encoding = sensor_msgs::image_encodings::TYPE_32FC3;
-	    depth.data.resize(4 * depth.width * depth.height, 0);
-	    std::memcpy(depth.data.data(), this->xyz.getPtr<unsigned char>(), 4 * depth.width * depth.height);
+	    depth.data.resize(4 * depth.width * depth.height * 3, 0);
+	    auto depth_data = (float*) depth.data.data();
+	    for (int i = 0; i < depth.width * depth.height; i++) {
+		auto xyz_ = this->xyz.getPtr<sl::float4>()[i];
+		depth_data[3*i] = xyz_[0];
+		depth_data[3*i+1] = xyz_[1];
+		depth_data[3*i+2] = xyz_[2];
+	    }
 
 	    Zed zed_msg;
 

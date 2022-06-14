@@ -25,22 +25,17 @@ public:
     }
 
     void get_centers(GetCenters::Request::SharedPtr request, GetCenters::Response::SharedPtr response) {
-
-	// Problems:
-	// Floating Point Percision?
-	// Efficiency?
+	auto points = (cv::Point3f*) request->depth.data.data();
 	
-	std::vector<cv::Point3f> points;
-	auto number_of_points = request->depth.height * request->depth.width;
-	points.reserve(number_of_points);
-	std::memcpy(points.data(), request->depth.data.data(), sizeof(cv::Point3f) * number_of_points);
-	RCLCPP_INFO_STREAM(this->get_logger(), "Size of point is " << sizeof(Point));
 	auto clusters = request->clusters.data;
 	auto segmentation_mask = request->segmentation_mask.data;
 	auto number_of_clusters = *std::max_element(clusters.begin(), clusters.end());
+
+	RCLCPP_INFO_STREAM(this->get_logger(), "There are " << (int) number_of_clusters << " clusters");
 	
 	for (auto i = 1; i < number_of_clusters + 1; i++) {
 	    int points_collected = 0;
+	    auto color_index = 0;
 	    Point estimated_center;
 
 	    for (auto j = 0; j < clusters.size() && points_collected < 50; j++) {
@@ -49,15 +44,22 @@ public:
 		    estimated_center.x += points[j].x;
 		    estimated_center.y += points[j].y;
 		    estimated_center.z += points[j].z;
+		    color_index = j;
 		}
 	    }
 
 	    estimated_center.x /= (float) points_collected;
 	    estimated_center.y /= (float) points_collected;
 	    estimated_center.z /= (float) points_collected;
-	    
-	    response->centers.push_back(estimated_center);
+
+	    auto color = segmentation_mask[color_index];
+	    if (color == 1) response->cones.blue_cones.push_back(estimated_center);
+	    else if (color == 2) response->cones.yellow_cones.push_back(estimated_center);
+	    else if (color == 3) response->cones.orange_cones.push_back(estimated_center);
+	    else if (color == 4) response->cones.big_orange_cones.push_back(estimated_center);
 	}
+
+	RCLCPP_INFO_STREAM(this->get_logger(), "Am I the bottleneck?");
     }
 };
 

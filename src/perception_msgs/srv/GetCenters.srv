@@ -2,4 +2,4 @@ sensor_msgs/Image clusters
 sensor_msgs/Image depth # Since The clusters are not annotated, we will refer to the depth
 sensor_msgs/Image segmentation_mask
 ---
-geometry_msgs/Point[] centers
+ConeArray cones

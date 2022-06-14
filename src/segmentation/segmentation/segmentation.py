@@ -16,17 +16,20 @@ from perception_msgs.msg import Zed
 class Segmentation(Node):
     def __init__(self):
         super().__init__("segmentation")
+        self.declare_parameter("publish_force_segment_results", True)
+        self.declare_parameter("subscribe_to_zed", False);
         self.declare_parameter("model", "cgnet")
         self.declare_parameter("weights", os.path.join(os.environ['HOME'], "downloads", self.get_parameter('model').get_parameter_value().string_value + ".ts"))
         sys.path.append(os.path.join(get_package_prefix('fta'), 'lib', 'fta'))
         import fta
-        self.subscription = self.create_subscription(Zed, "zed", self.callback, 1)
-        self.force_segment = self.create_service(ForceSegment, "force_segment", self.force_segment);
         self.fta = fta
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = torch.jit.load(self.get_parameter('weights').get_parameter_value().string_value, map_location=self.device)
         self.get_logger().info('Loaded model')
         self.publisher = self.create_publisher(Image, "segmentation_mask", 1)
+        if self.get_parameter("subscribe_to_zed").get_parameter_value().bool_value:
+            self.subscription = self.create_subscription(Zed, "zed", self.callback, 1)
+        self.force_segment = self.create_service(ForceSegment, "force_segment", self.force_segment);
         
     def segment(self, image):
         cv_image = np.array(image.data).reshape(image.height, image.width, 3)
@@ -40,6 +43,8 @@ class Segmentation(Node):
     
     def force_segment(self, request, response):
         response.segmentation_mask = self.segment(request.input)
+        if self.get_parameter("publish_force_segment_results").get_parameter_value().bool_value:
+            self.publisher.publish(response.segmentation_mask)
         return response
         
     def callback(self, zed):
