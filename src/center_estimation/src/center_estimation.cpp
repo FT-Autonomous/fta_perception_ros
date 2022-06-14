@@ -30,9 +30,7 @@ public:
 	auto clusters = request->clusters.data;
 	auto segmentation_mask = request->segmentation_mask.data;
 	auto number_of_clusters = *std::max_element(clusters.begin(), clusters.end());
-
-	RCLCPP_INFO_STREAM(this->get_logger(), "There are " << (int) number_of_clusters << " clusters");
-	
+		
 	for (auto i = 1; i < number_of_clusters + 1; i++) {
 	    int points_collected = 0;
 	    auto color_index = 0;
@@ -58,8 +56,6 @@ public:
 	    else if (color == 3) response->cones.orange_cones.push_back(estimated_center);
 	    else if (color == 4) response->cones.big_orange_cones.push_back(estimated_center);
 	}
-
-	RCLCPP_INFO_STREAM(this->get_logger(), "Am I the bottleneck?");
     }
 };
 
