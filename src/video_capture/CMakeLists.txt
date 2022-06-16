@@ -23,11 +23,4 @@ ament_target_dependencies(video_capture rclcpp sensor_msgs perception_msgs OpenC
 install(TARGETS video_capture
         DESTINATION lib/${PROJECT_NAME})
 
-file(GLOB dirs LIST_DIRECTORIES true build/${PROJECT_NAME}/*_cpp)
-list(APPEND dirs "/opt/ros2/galactic/include/"
-                 "/usr/include/opencv4/")
-list(TRANSFORM dirs PREPEND "-I")
-list(JOIN dirs "," to_output)
-file(WRITE .clangd "CompileFlags:\n\tAdd: [${to_output}]")
-
 ament_package()

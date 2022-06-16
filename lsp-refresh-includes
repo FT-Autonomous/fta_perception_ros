@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/zsh
 cwd=$(pwd)
 cwd=${cwd//\//\\\/}
 
 include_string () {
     find -type d -path './build/*' -name '*cpp' \
-    	 | awk 'BEGIN{printf "%s", "-std=c++17,-I/usr/include/opencv4/,-I/opt/ros2/galactic/include/,"} {printf "-I%s,", $0}' \
+    	 | awk 'BEGIN{printf "%s", "-std=c++17,-I/usr/include/opencv4/,-I/opt/ros2/galactic/include/,-I/usr/local/zed/include/,"} {printf "-I%s,", $0}' \
 	 | sed -e "s/-I\.\//-I$cwd\//g" \
 	       -e 's/\(-I[^,]\+[[:alnum:]]\),/\1\/,/g' \
 	       -e 's/,$//' 
