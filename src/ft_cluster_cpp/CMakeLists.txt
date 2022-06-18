@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(center_estimation)
+project(ft_cluster_cpp)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,13 +7,12 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(perception_msgs REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package(rclcpp REQUIRED)
 
-add_executable(center_estimation src/center_estimation.cpp)
-ament_target_dependencies(center_estimation rclcpp geometry_msgs perception_msgs OpenCV)
+add_executable(ft_cluster_cpp src/cluster.cpp)
+ament_target_dependencies(ft_cluster_cpp rclcpp perception_msgs sensor_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -21,7 +20,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  TARGETS center_estimation
+  TARGETS ft_cluster_cpp
   DESTINATION lib/${PROJECT_NAME}
 )
 
