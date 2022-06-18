@@ -9,7 +9,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <perception_msgs/srv/get_centers.hpp>
 #include <geometry_msgs/msg/point.h>
-#include <vector>
 #include <opencv2/core.hpp>
 
 class CenterEstimationNode : public rclcpp::Node {
@@ -32,6 +31,7 @@ public:
 	auto number_of_clusters = *std::max_element(clusters.begin(), clusters.end());
 		
 	for (auto i = 1; i < number_of_clusters + 1; i++) {
+	    
 	    int points_collected = 0;
 	    auto color_index = 0;
 	    Point estimated_center;
@@ -51,6 +51,7 @@ public:
 	    estimated_center.z /= (float) points_collected;
 
 	    auto color = segmentation_mask[color_index];
+	    
 	    if (color == 1) response->cones.blue_cones.push_back(estimated_center);
 	    else if (color == 2) response->cones.yellow_cones.push_back(estimated_center);
 	    else if (color == 3) response->cones.orange_cones.push_back(estimated_center);

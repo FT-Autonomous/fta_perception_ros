@@ -16,8 +16,8 @@ def generate_launch_description():
         ),
         GroupAction(actions=[
             PushRosNamespace("perception"),
-            Node(package="cluster",
-                 executable="cluster"),
+            Node(package="ft_cluster_cpp",
+                 executable="ft_cluster_cpp"),
             Node(package="center_estimation",
                  executable="center_estimation"),
             Node(package="ft_perception_synthesis",
