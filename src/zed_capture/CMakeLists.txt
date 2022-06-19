@@ -10,7 +10,7 @@ find_package(OpenCV REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(ZED 3 REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(CUDA REQUIRED)
+find_package(CUDA 11.2 REQUIRED)
 find_package(perception_msgs REQUIRED)
 
 add_executable(zed_capture src/zed_capture.cpp)

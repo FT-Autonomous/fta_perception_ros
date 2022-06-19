@@ -30,8 +30,10 @@ class Segmentation(Node):
         if self.get_parameter("subscribe_to_zed").get_parameter_value().bool_value:
             self.subscription = self.create_subscription(Zed, "zed", self.callback, 1)
         self.force_segment = self.create_service(ForceSegment, "force_segment", self.force_segment);
+        self.get_logger().info('Initialised Segmentation Node')
         
     def segment(self, image):
+        self.get_logger().info("Segmenting...")
         cv_image = np.array(image.data).reshape(image.height, image.width, 3)
         output = np.uint8(self.fta.live.predict(cv_image, model=self.model, device=self.device))
         return Image(

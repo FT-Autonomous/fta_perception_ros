@@ -39,7 +39,7 @@ public:
 	auto returned_state = camera.open(init_parameters);
 
 	if (returned_state != sl::ERROR_CODE::SUCCESS) {
-	    RCLCPP_FATAL(this->get_logger(), "Failed to open ZED Camera");
+	    RCLCPP_FATAL_STREAM(this->get_logger(), "Failed to open ZED Camera" << returned_state);
 	    rclcpp::shutdown();
 	}
 	
@@ -48,7 +48,7 @@ public:
 	this->runtime_parameters.sensing_mode = sl::SENSING_MODE::FILL;
 	this->camera_configuration = camera.getCameraInformation().camera_configuration;
 	this->publisher = this->create_publisher<Zed>("zed", 1);
-	this->zed_timer = this->create_wall_timer(0s, std::bind(&ZedCapture::capture, this));
+	this->zed_timer = this->create_wall_timer(500ms, std::bind(&ZedCapture::capture, this));
 	RCLCPP_INFO(this->get_logger(), "Initialised ZEDCapture node");
     }
 

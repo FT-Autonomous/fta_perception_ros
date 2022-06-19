@@ -57,6 +57,7 @@ class ClusterNode
 private:
     using Cluster = perception_msgs::srv::Cluster;
     rclcpp::Service<Cluster>::SharedPtr service;
+    int unsafe = 0;
 
     float sqeuclidean(const Point & a,
 		      const Point & b)
@@ -75,9 +76,13 @@ private:
 		  std::vector<std::vector<int>> & neighbors_map,
 		  int min_samples)
     {
-	if (not cluster_map[start]
-	    && neighbors_map.size() > min_samples) {
+        if (unsafe++ > 100000000) {
+
+            return false;
+        }
+	if (not cluster_map[start]) {
 	    cluster_map[start] = cluster;
+        if (neighbors_map.size() > min_samples) {
 	    for (auto neighbor : neighbors_map[start]) {
 		traverse(neighbor,
 			 cluster,
@@ -87,8 +92,9 @@ private:
 			 min_samples);
 	    }
 
+	} 
 	    return true;
-	} else {
+    } else {
 	    return false;
 	}
     }
@@ -120,11 +126,14 @@ private:
 		}
 	    }
 	}
+
+    RCLCPP_INFO(this->get_logger(), "ALIVE");
     
 	std::vector<uchar> cluster_map;
 	cluster_map.resize(points.size(), 0);
 
 	int cluster = 1;
+    unsafe = 0;
 	for (int i = 0; i < neighbors_map.size(); i++) {
 	    if (traverse(i,
 			 cluster,
@@ -135,6 +144,8 @@ private:
 		cluster++;
 	    }
 	}
+
+    RCLCPP_INFO(this->get_logger(), "STILL ALIVE");
 
 	return unpool(cluster_map);
     }

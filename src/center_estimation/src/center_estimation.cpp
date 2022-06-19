@@ -39,18 +39,27 @@ public:
 	    for (auto j = 0; j < clusters.size() && points_collected < 50; j++) {
 		if (clusters[j] == i) {
 		    points_collected++;
+            if (points[j].x == points[j].x &&
+                    points[j].y == points[j].y &&
+                    points[j].z == points[j].z) {
 		    estimated_center.x += points[j].x;
 		    estimated_center.y += points[j].y;
 		    estimated_center.z += points[j].z;
-		    color_index = j;
+            }
+		    if (segmentation_mask[j] != 0) {
+                color_index = j;
+            }
 		}
-	    }
+        }
+
+	   
 
 	    estimated_center.x /= (float) points_collected;
 	    estimated_center.y /= (float) points_collected;
 	    estimated_center.z /= (float) points_collected;
 
 	    auto color = segmentation_mask[color_index];
+        RCLCPP_INFO_STREAM(this->get_logger(), "Found cone");
 	    
 	    if (color == 1) response->cones.blue_cones.push_back(estimated_center);
 	    else if (color == 2) response->cones.yellow_cones.push_back(estimated_center);

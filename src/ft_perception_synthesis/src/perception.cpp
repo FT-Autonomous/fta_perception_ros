@@ -7,11 +7,14 @@
 #include <future>
 #include <memory>
 #include <chrono>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <perception_msgs/msg/zed.hpp>
 #include <perception_msgs/srv/get_centers.hpp>
 #include <perception_msgs/srv/cluster.hpp>
 #include <perception_msgs/srv/force_segment.hpp>
+#include <sensor_msgs/msg/image.hpp>
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;    
@@ -38,7 +41,9 @@ private:
     Image last_depth_map;
     Image last_segmentation_mask;
 
-    std::mutex processing;
+    int ad_hoc_interval;
+    std::mutex lock;
+    int ad_hoc_timer;
 public:
     PerceptionNode()
 	: rclcpp::Node("perception_node") {
@@ -49,6 +54,7 @@ public:
 	this->center_estimation_client = this->create_client<GetCenters>("estimate_centers");
 	this->cone_publisher = this->create_publisher<ConeArray>("cones", 1);
 	this->zed_subscription = this->create_subscription<Zed>("zed", 1, std::bind(&PerceptionNode::segment, this, _1));
+        RCLCPP_INFO(this->geet_logger(), "Lol -11");
     }
 
     template <typename T>
@@ -60,21 +66,58 @@ public:
 	}
     }
 
-    void segment(Zed zed_msg) {
-	if (this->processing.try_lock()) {
-	    auto segment_request = std::make_shared<ForceSegment::Request>();
-	    this->last_depth_map = zed_msg.depth;
-	    segment_request->input = zed_msg.color;
-	    this->make_sure_service_is_ready<ForceSegment>(this->segment_client);
-	    this->segment_client->async_send_request(segment_request, std::bind(&PerceptionNode::cluster, this, _1));
-	}
+    void segment(Zed::SharedPtr zed_msg) {
+        if (lock.try_lock()) {
+        RCLCPP_INFO(this->get_logger(), "Lol -10");
+            auto segment_request = std::make_shared<ForceSegment::Request>();
+            this->last_depth_map = zed_msg->depth;
+            segment_request->input = zed_msg->color;
+            this->make_sure_service_is_ready<ForceSegment>(this->segment_client);
+            this->segment_client->async_send_request(segment_request, std::bind(&PerceptionNode::cluster, this, _1));
+        RCLCPP_INFO(this->get_logger(), "Lol -9");
+        }
     }
 
     void cluster(std::shared_future<ForceSegment::Response::SharedPtr> future) {
+
+        int factor = 10;
+
+        RCLCPP_INFO(this->geet_logger(), "Lol 0");
+
+        Image & image = last_depth_map;
+        Image new_image;
+        new_image.width = image.width / factor;
+        new_image.height = image.height / factor;
+        std::vector<float> floats(image.width * image.height * 3);
+        memcpy(floats.data(), image.data.data(), floats.size() * 4);
+
+        RCLCPP_INFO(this->geet_logger(), "Lol 1");
+
+        cv::Mat cv_floats(floats);
+        cv::Mat out_seg;
+        cv::resize(cv_floats, out_seg, cv::Size(), new_image.width, new_image.height, cv::INTER_NEAREST);
+        new_image.data.resize(new_image.width * new_image.height * 3);
+        memcpy(new_image.data.data(), out_seg.data, 4 * new_image.width  * new_image.height  * 3);
+
+        RCLCPP_INFO(this->geet_logger(), "Lol 2");
+
+        Image & seg = future.get()->segmentation_mask;
+        Image new_depth;
+        new_depth.width = seg.width / factor;
+        new_depth.height = seg.height / factor;
+        std::vector<uchar> chars(seg.width * seg.height * 3);
+        memcpy(chars.data(), seg.data.data(), chars.size());
+        cv::Mat cv_chars(chars);
+        cv::Mat out_depth;
+        cv::resize(cv_chars, out_depth, cv::Size(), new_depth.width, new_depth.height, cv::INTER_NEAREST);
+        new_depth.data.resize(new_depth.width * new_depth.height * 3);
+        memcpy(new_depth.data.data(), out_depth.data, new_depth.width  * new_depth.height  * 3);
+
 	auto cluster_request = std::make_shared<Cluster::Request>();
-	this->last_segmentation_mask = future.get()->segmentation_mask;
-	cluster_request->segmentation_mask = this->last_segmentation_mask;
-	cluster_request->points = this->last_depth_map;
+	this->last_segmentation_mask = new_image;
+	cluster_request->segmentation_mask = new_image;
+    this->last_depth_map = new_depth;
+	cluster_request->points = new_depth;
 	this->make_sure_service_is_ready<Cluster>(this->cluster_client);
 	this->cluster_client->async_send_request(cluster_request, std::bind(&PerceptionNode::estimate_centers, this, _1));
     }
@@ -89,8 +132,9 @@ public:
     }
 
     void publish(std::shared_future<GetCenters::Response::SharedPtr> future) {
+        RCLCPP_INFO_STREAM(this->get_logger(), "HERE " << future.get()->cones.blue_cones.size());
 	this->cone_publisher->publish(future.get()->cones);
-	this->processing.unlock();
+    this->lock.unlock();
     }
 };
 

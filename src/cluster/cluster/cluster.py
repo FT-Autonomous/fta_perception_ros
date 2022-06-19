@@ -19,13 +19,16 @@ class ClusterNode(Node):
         self.cluster_service = self.create_service(Cluster, "cluster", self.cluster)
         
     def cluster(self, request, response):
+        print("here")
         start = time.perf_counter()
         segmentation_mask = np.frombuffer(request.segmentation_mask.data, dtype=np.uint8).reshape(request.segmentation_mask.height, request.segmentation_mask.width)
         depth_map = np.frombuffer(request.points.data, dtype=np.float32).reshape(request.points.height, request.points.width, 3)
         depth_map[np.isnan(depth_map)] = 100
         depth_map[np.isinf(depth_map)] = 100
+
         cv.imshow("Depth", depth_map / depth_map.max())
         cv.waitKey(1);
+
         cluster_map = np.zeros((segmentation_mask.shape[0], segmentation_mask.shape[1]), dtype=np.uint8)
         non_background_indices = np.nonzero(segmentation_mask) # Maps pred -> real
         min_samples = self.get_parameter("min_samples").get_parameter_value().integer_value
@@ -36,7 +39,7 @@ class ClusterNode(Node):
 
             # cluster the filtered point cloud
             model = OPTICS(
-                cluster_method='xi',
+                cluster_method='dbscan',
                 eps=self.get_parameter("eps").get_parameter_value().integer_value,
                 min_samples=min_samples,
                 n_jobs=self.get_parameter("n_jobs").get_parameter_value().integer_value

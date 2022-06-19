@@ -9,9 +9,11 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(perception_msgs REQUIRED)
+find_package(CUDA 11.2 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 add_executable(perception src/perception.cpp)
-ament_target_dependencies(perception rclcpp perception_msgs)
+ament_target_dependencies(perception rclcpp perception_msgs OpenCV CUDA)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
