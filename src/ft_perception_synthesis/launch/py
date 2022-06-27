@@ -11,7 +11,7 @@ def generate_launch_description():
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                PathJoinSubstitution([FindPackageShare('ft_perception_synthesis'),'launch','synthesis.launch.py'])
+                PathJoinSubstitution([FindPackageShare('ft_perception_synthesis'),'launch','visualise.launch.py'])
             )
         ),
         GroupAction(actions=[
