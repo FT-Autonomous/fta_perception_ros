@@ -19,6 +19,10 @@ Here I use the `/**` operator rather than the actual node path.
 
 See releases page.
 
+# Bags
+
+Before building, download the bag from slack/github and then extract it in the folder `src/ft_perception_synthesis/bags/static`.
+
 # Pre-Cluster Downsampling
 
 Currently, the c++ clustering algorithm is not used.
@@ -28,6 +32,7 @@ This should give us an algorithm that has `O(n)` complexity, or `O(n/b)` where `
 
 The temporary solution to this is to downsample the depth map before passing it into the clustering algorithm.
 I have found a `downsample_factor` value (parameter in the perception node) of 5 combined with a `min_samples` (parameter in the cluster node) value of 10 to be sufficient for debugging purposes.
+
 
 [![test]][the_rest]
 
