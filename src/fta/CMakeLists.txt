@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
 project(fta)
 find_package(ament_cmake REQUIRED)
-install(DIRECTORY fta DESTINATION lib)
+install(DIRECTORY fta/fta DESTINATION lib)
 ament_package()
