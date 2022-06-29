@@ -14,7 +14,7 @@ class ClusterNode(Node):
     def __init__(self):
         super().__init__("cluster")
         self.declare_parameter("eps", 300)
-        self.declare_parameter("min_samples", 10)
+        self.declare_parameter("min_samples", 20)
         self.declare_parameter("n_jobs", 6)
         self.cluster_service = self.create_service(Cluster, "cluster", self.cluster)
         
