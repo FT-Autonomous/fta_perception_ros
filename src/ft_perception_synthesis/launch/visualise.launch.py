@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, GroupAction
+from launch.actions import IncludeLaunchDescription, GroupAction, ExecuteProcess
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import PushRosNamespace, Node
@@ -7,6 +7,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
     return LaunchDescription([
+        ExecuteProcess(cmd=['rqt_graph'], shell=True),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([
