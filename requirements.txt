@@ -1,1 +1,6 @@
 sklearn
+torch
+torchvision
+tqdm
+opencv-python
+wandb
