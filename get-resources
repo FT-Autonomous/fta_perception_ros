@@ -1,0 +1,11 @@
+#!/bin/sh
+version=${version-v0.1.0}
+releases=https://github.com/FT-Autonomous/fta_perception_ros/releases/download/$version
+
+wget $releases/cgnet.ts
+mv cgnet.ts src/segmentation/share/
+
+wget $releases/static.zip
+unzip static.zip -d src/ft_perception_synthesis/bags/
+rm static.zip
+
