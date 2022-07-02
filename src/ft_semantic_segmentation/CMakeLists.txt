@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.8)
+project(ft_semantic_segmentation)
+find_package(ament_cmake REQUIRED)
+install(DIRECTORY ft_semantic_segmentation/ft_semantic_segmentation DESTINATION lib)
+ament_package()
