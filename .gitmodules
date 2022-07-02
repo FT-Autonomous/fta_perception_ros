@@ -1,6 +1,3 @@
-[submodule "src/fta/fta"]
-	path = src/fta/fta
-	url = git@github.com:FT-Autonomous/awesome-semantic-segmentation-pytorch.git
 [submodule "fta"]
 	path = src/awesome-semantic-segmentation-pytorch
 	url = https://github.com/FT-Autonomous/awesome-semantic-segmentation-pytorch.git
