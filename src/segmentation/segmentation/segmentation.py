@@ -20,9 +20,9 @@ class Segmentation(Node):
         self.declare_parameter("subscribe_to_zed", False);
         self.declare_parameter("model", "cgnet")
         self.declare_parameter("weights", os.path.join(get_package_prefix('segmentation'), 'share/segmentation/', 'cgnet.ts'))
-        sys.path.append(os.path.join(get_package_prefix('fta'), 'lib'))
-        import fta
-        self.fta = fta
+        sys.path.append(os.path.join(get_package_prefix('ft_semantic_segmentation'), 'lib'))
+        import ft_semantic_segmentation
+        self.ft_semantic_segmentation = ft_semantic_segmentation
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = torch.jit.load(self.get_parameter('weights').get_parameter_value().string_value, map_location=self.device)
         self.get_logger().info('Loaded model')
@@ -35,7 +35,7 @@ class Segmentation(Node):
     def segment(self, image):
         self.get_logger().info("Segmenting...")
         cv_image = np.array(image.data).reshape(image.height, image.width, 3)
-        output = np.uint8(self.fta.live.predict(cv_image, model=self.model, device=self.device))
+        output = np.uint8(self.ft_semantic_segmentation.live.predict(cv_image, model=self.model, device=self.device))
         return Image(
             header=Header(frame_id=image.header.frame_id),
             height=output.shape[0],
