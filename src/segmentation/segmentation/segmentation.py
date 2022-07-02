@@ -19,7 +19,7 @@ class Segmentation(Node):
         self.declare_parameter("publish_force_segment_results", True)
         self.declare_parameter("subscribe_to_zed", False);
         self.declare_parameter("model", "cgnet")
-        self.declare_parameter("weights", os.path.join(os.environ['HOME'], "downloads", self.get_parameter('model').get_parameter_value().string_value + ".ts"))
+        self.declare_parameter("weights", os.path.join(get_package_prefix('segmentation'), 'share/segmentation/', 'cgnet.ts'))
         sys.path.append(os.path.join(get_package_prefix('fta'), 'lib', 'fta'))
         import fta
         self.fta = fta
