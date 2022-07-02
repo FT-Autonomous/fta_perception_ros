@@ -1,3 +1,18 @@
+# Installation
+
+## For CUDA enabled devices
+
+```
+sh get-resources
+colcon build
+```
+
+If your device doesn't support cuda, use the build command
+
+```
+colcon build --base-paths src/{ft_perception_synthesis,segmentation,cluster,center_estimation,perception_msgs}
+```
+
 To run everything, use `ros2 launch ft_peception_synthesis py`.
 Node parameters are controlled using YAML config files in the `config` directory of the `ft_perception_synthesis` package rather than as launch arguments.
 
