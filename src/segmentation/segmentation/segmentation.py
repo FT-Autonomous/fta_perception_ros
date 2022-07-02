@@ -20,7 +20,7 @@ class Segmentation(Node):
         self.declare_parameter("subscribe_to_zed", False);
         self.declare_parameter("model", "cgnet")
         self.declare_parameter("weights", os.path.join(get_package_prefix('segmentation'), 'share/segmentation/', 'cgnet.ts'))
-        sys.path.append(os.path.join(get_package_prefix('fta'), 'lib', 'fta'))
+        sys.path.append(os.path.join(get_package_prefix('fta'), 'lib'))
         import fta
         self.fta = fta
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

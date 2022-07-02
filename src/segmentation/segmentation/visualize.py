@@ -14,7 +14,7 @@ class VisualizeSegmentation(Node):
         self.mask_subscription = self.create_subscription(Image, "segmentation_mask", self.mask_callback, 1)
         self.image_subscription = self.create_subscription(Zed, "zed", self.image_callback, 1)
         self.show_timer = self.create_timer(0.1, self.show_callback)
-        sys.path.append(os.path.join(get_package_prefix('fta'), 'lib', 'fta'))
+        sys.path.append(os.path.join(get_package_prefix('fta'), 'lib'))
         import fta
         self.fta = fta
         self.image = None
