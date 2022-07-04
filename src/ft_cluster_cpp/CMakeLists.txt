@@ -11,7 +11,9 @@ find_package(sensor_msgs REQUIRED)
 find_package(perception_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 
-add_executable(ft_cluster_cpp src/cluster.cpp)
+add_executable(ft_cluster_cpp src/cluster.cpp src/gl.c src/egl.c src/cluster_gl.cpp)
+target_include_directories(ft_cluster_cpp PUBLIC include)
+target_link_libraries(ft_cluster_cpp EGL)
 ament_target_dependencies(ft_cluster_cpp rclcpp perception_msgs sensor_msgs)
 
 if(BUILD_TESTING)
@@ -21,6 +23,11 @@ endif()
 
 install(
   TARGETS ft_cluster_cpp
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY lib/shaders
   DESTINATION lib/${PROJECT_NAME}
 )
 
