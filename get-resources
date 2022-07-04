@@ -6,6 +6,7 @@ wget $releases/cgnet.ts
 mv cgnet.ts src/segmentation/share/
 
 wget $releases/static.zip
+mkdir src/ft_perception_synthesis/bags/
 unzip static.zip -d src/ft_perception_synthesis/bags/
 rm static.zip
 
