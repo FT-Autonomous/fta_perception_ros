@@ -8,7 +8,7 @@ from launch.substitutions import PythonExpression
 
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument("source", default_value="bag"),
+        DeclareLaunchArgument("source", default_value="zed"),
         DeclareLaunchArgument("bag", default_value="static"),
         GroupAction(
             actions=[
