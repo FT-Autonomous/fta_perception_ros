@@ -1,6 +1,3 @@
-#include "ft_msgs/srv/detail/force_segment__struct.hpp"
-#include "ft_msgs/srv/detail/get_centers__struct.hpp"
-#include "sensor_msgs/msg/detail/image__struct.hpp"
 #include <functional>
 #include <filesystem>
 
@@ -11,18 +8,18 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <ft_msgs/msg/zed.hpp>
-#include <ft_msgs/srv/get_centers.hpp>
-#include <ft_msgs/srv/cluster.hpp>
-#include <ft_msgs/srv/force_segment.hpp>
+#include <eufs_msgs/msg/zed.hpp>
+#include <eufs_msgs/srv/get_centers.hpp>
+#include <eufs_msgs/srv/cluster.hpp>
+#include <eufs_msgs/srv/force_segment.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;    
 
 using namespace sensor_msgs::msg;
-using namespace ft_msgs::msg;
-using namespace ft_msgs::srv;
+using namespace eufs_msgs::msg;
+using namespace eufs_msgs::srv;
     
 class PerceptionNode
     : public rclcpp::Node {

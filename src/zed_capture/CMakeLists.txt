@@ -11,10 +11,10 @@ find_package(rclcpp REQUIRED)
 find_package(ZED 3 REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(CUDA 11.2 REQUIRED)
-find_package(perception_msgs REQUIRED)
+find_package(eufs_msgs REQUIRED)
 
 add_executable(zed_capture src/zed_capture.cpp)
-ament_target_dependencies(zed_capture rclcpp OpenCV sensor_msgs perception_msgs ZED CUDA)
+ament_target_dependencies(zed_capture rclcpp OpenCV sensor_msgs eufs_msgs ZED CUDA)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

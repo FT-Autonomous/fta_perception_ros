@@ -8,14 +8,14 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(perception_msgs REQUIRED)
+find_package(eufs_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(OpenCV REQUIRED)
 
 add_executable(ft_cluster_cpp src/cluster.cpp src/gl.c src/egl.c src/cluster_gl.cpp)
 target_include_directories(ft_cluster_cpp PUBLIC include)
 target_link_libraries(ft_cluster_cpp EGL)
-ament_target_dependencies(ft_cluster_cpp rclcpp perception_msgs sensor_msgs OpenCV)
+ament_target_dependencies(ft_cluster_cpp rclcpp eufs_msgs sensor_msgs OpenCV)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

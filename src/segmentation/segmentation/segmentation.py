@@ -10,8 +10,8 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Header
 from ament_index_python.packages import get_package_prefix
-from ft_msgs.srv import ForceSegment
-from ft_msgs.msg import Zed
+from eufs_msgs.srv import ForceSegment
+from eufs_msgs.msg import Zed
 
 class Segmentation(Node):
     def __init__(self):

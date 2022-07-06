@@ -14,8 +14,8 @@
 #include <cstdlib>
 
 #include <rclcpp/rclcpp.hpp>
-#include <ft_msgs/srv/cluster.hpp>
-#include <ft_msgs/msg/cone_array.hpp>
+#include <eufs_msgs/srv/cluster.hpp>
+#include <eufs_msgs/msg/cone_array.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <ament_index_cpp/get_package_prefix.hpp>
 
@@ -26,7 +26,7 @@
 #include "cluster_gl.hpp"
 
 #include "geometry_msgs/msg/detail/point__struct.hpp"
-#include "ft_msgs/msg/detail/cone_array__struct.hpp"
+#include "eufs_msgs/msg/detail/cone_array__struct.hpp"
 #include "rclcpp/publisher.hpp"
 
 using namespace std;
@@ -121,8 +121,8 @@ ConeMetric traverse(int index, int cluster_id, const std::vector<std::vector<int
 class ClusterNode
     : public rclcpp::Node {
 private:
-    using Cluster = ft_msgs::srv::Cluster;
-    using ConeArray = ft_msgs::msg::ConeArray;
+    using Cluster = eufs_msgs::srv::Cluster;
+    using ConeArray = eufs_msgs::msg::ConeArray;
     GLCluster gl_cluster;
     rclcpp::Service<Cluster>::SharedPtr service;
     rclcpp::Publisher<ConeArray>::SharedPtr cone_array_publisher;
@@ -132,7 +132,7 @@ private:
 			       float epsilon)
     {
 	std::vector<uchar> cluster_map(points.size());
-        ft_msgs::msg::ConeArray cone_array;
+        eufs_msgs::msg::ConeArray cone_array;
         
         this->gl_cluster.setEps(epsilon);
         

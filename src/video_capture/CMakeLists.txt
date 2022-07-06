@@ -8,7 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(perception_msgs REQUIRED)
+find_package(eufs_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 
@@ -18,7 +18,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(video_capture src/video_capture.cpp)
-ament_target_dependencies(video_capture rclcpp sensor_msgs perception_msgs OpenCV)
+ament_target_dependencies(video_capture rclcpp sensor_msgs eufs_msgs OpenCV)
 
 install(TARGETS video_capture
         DESTINATION lib/${PROJECT_NAME})
