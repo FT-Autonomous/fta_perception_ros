@@ -49,10 +49,13 @@ public:
 	this->declare_parameter<int>("service_wait_time_ms", 1000);
 	this->declare_parameter<int>("downsample_factor", 1);
 	this->cluster_client = this->create_client<Cluster>("cluster");
+        RCLCPP_INFO(this->get_logger(), "cluster available");
 	this->segment_client = this->create_client<ForceSegment>("force_segment");
-	this->center_estimation_client = this->create_client<GetCenters>("estimate_centers");
+        RCLCPP_INFO(this->get_logger(), "force segment available");
 	this->cone_publisher = this->create_publisher<ConeArray>("cones", 1);
+        RCLCPP_INFO(this->get_logger(), "cone pulbisher made");
 	this->zed_subscription = this->create_subscription<Zed>("zed", 1, std::bind(&PerceptionNode::segment, this, _1));
+        RCLCPP_INFO(this->get_logger(), "zed subscription made");
     }
 
     template <typename T>
@@ -65,12 +68,15 @@ public:
     }
 
     void segment(Zed::SharedPtr zed_msg) {
+        RCLCPP_INFO(this->get_logger(), "trying to segment");
         if (lock.try_lock()) {
             auto segment_request = std::make_shared<ForceSegment::Request>();
             this->last_depth_map = zed_msg->depth;
             segment_request->input = zed_msg->color;
             this->make_sure_service_is_ready<ForceSegment>(this->segment_client);
             this->segment_client->async_send_request(segment_request, std::bind(&PerceptionNode::cluster, this, _1));
+        } else {
+            RCLCPP_INFO(this->get_logger(), "not gonna segment");
         }
     }
 
@@ -113,17 +119,18 @@ public:
     }
 
     void estimate_centers(std::shared_future<Cluster::Response::SharedPtr> future) {
-	auto center_request = std::make_shared<GetCenters::Request>();
-	center_request->clusters = future.get()->clusters;
-	center_request->segmentation_mask = this->last_segmentation_mask;
-	center_request->depth = this->last_depth_map;
-	this->make_sure_service_is_ready<GetCenters>(this->center_estimation_client);
-	this->center_estimation_client->async_send_request(center_request, std::bind(&PerceptionNode::publish, this, _1));
+        lock.unlock(); // Hacky way of doing things
+	//auto center_request = std::make_shared<GetCenters::Request>();
+	//center_request->clusters = future.get()->clusters;
+	//center_request->segmentation_mask = this->last_segmentation_mask;
+	//center_request->depth = this->last_depth_map;
+	//this->make_sure_service_is_ready<GetCenters>(this->center_estimation_client);
+	//this->center_estimation_client->async_send_request(center_request, std::bind(&PerceptionNode::publish, this, _1));
     }
 
     void publish(std::shared_future<GetCenters::Response::SharedPtr> future) {
         RCLCPP_INFO_STREAM(this->get_logger(), "HERE " << future.get()->cones.blue_cones.size());
-	//this->cone_publisher->publish(future.get()->cones);
+	this->cone_publisher->publish(future.get()->cones);
         lock.unlock();
     }
 };
