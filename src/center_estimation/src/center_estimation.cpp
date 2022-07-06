@@ -7,13 +7,13 @@
 #include <functional>
 #include <memory>
 #include <rclcpp/rclcpp.hpp>
-#include <perception_msgs/srv/get_centers.hpp>
+#include <ft_msgs/srv/get_centers.hpp>
 #include <geometry_msgs/msg/point.h>
 #include <opencv2/core.hpp>
 
 class CenterEstimationNode : public rclcpp::Node {
 private:
-    using GetCenters = perception_msgs::srv::GetCenters;
+    using GetCenters = ft_msgs::srv::GetCenters;
     using Point = geometry_msgs::msg::Point;
     rclcpp::Service<GetCenters>::SharedPtr get_centers_service;
 public:

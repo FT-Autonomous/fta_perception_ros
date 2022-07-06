@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from perception_msgs.msg import Zed
+from ft_msgs.msg import Zed
 import numpy as np
 import cv2 as cv
 import os

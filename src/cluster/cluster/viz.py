@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import rclpy
 from math import isnan, isinf
 from rclpy.node import Node
-from perception_msgs.msg import ConeArray
+from ft_msgs.msg import ConeArray
 
 def accumulate_with_color(cones, color, x, y, c):
     for cone in cones:

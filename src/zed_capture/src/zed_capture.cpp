@@ -9,7 +9,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <perception_msgs/msg/zed.hpp>
+#include <ft_msgs/msg/zed.hpp>
 
 using namespace std::chrono_literals;
 using namespace std;
@@ -18,7 +18,7 @@ class ZedCapture
     : public rclcpp::Node {
 private:
     using Image = sensor_msgs::msg::Image;
-    using Zed = perception_msgs::msg::Zed;
+    using Zed = ft_msgs::msg::Zed;
     mutex mtx;
     sl::Camera camera;
     sl::CameraConfiguration camera_configuration;
