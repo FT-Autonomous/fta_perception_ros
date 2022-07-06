@@ -17,6 +17,8 @@
 #include "ament_index_cpp/get_package_prefix.hpp"
 #include "cluster_gl.hpp"
 
+const int LOCAL_SIZE_X = 1;
+
 void shaderOkOrDie(unsigned int shader) {
     int shaderCompiled = 0;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &shaderCompiled);
@@ -30,35 +32,25 @@ void shaderOkOrDie(unsigned int shader) {
 }
 
 int GLCluster::numberOfInputPoints() const {
-    return input.size() / 4;
-}
-
-void GLCluster::regenerateInputBuffer() {
-    glUniform1i(this->batchSizeLocation, this->maximumPoints);
-    
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->inputBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, 4 * this->maximumPoints * sizeof(float), nullptr, GL_STATIC_COPY);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, this->inputBuffer);
+    return this->input.size() / 4;
 }
 
 void GLCluster::regenerateBatchSizeDependentBuffers() {
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->batchTargetsBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, 4 * this->batchSize * this->maximumPoints * sizeof(float), nullptr, GL_DYNAMIC_COPY);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, this->batchTargetsBuffer);
-
-    this->output.resize(this->batchSize * this->maximumPoints);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->outputBuffer);
+    this->distances.resize(this->maximumPoints * this->batchSize);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->distancesBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, this->batchSize * this->maximumPoints * sizeof(float), nullptr, GL_DYNAMIC_COPY);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, this->outputBuffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, this->distancesBuffer);
+    
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->batchTargetsBuffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 4 * this->batchSize * sizeof(float), nullptr, GL_DYNAMIC_COPY);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, this->batchTargetsBuffer);
     
     this->sums.resize(this->batchSize);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->sumBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, this->batchSize * sizeof(int), nullptr, GL_DYNAMIC_COPY);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, this->sumBuffer);
 
     this->neighbors.resize(this->maximumPoints * this->batchSize);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->neighborBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, this->maximumPoints * this->batchSize * sizeof(int), nullptr, GL_DYNAMIC_COPY);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, this->neighborBuffer);
 }
 
@@ -66,7 +58,6 @@ void GLCluster::loadShader() {
     unsigned int shader = glCreateShader(GL_COMPUTE_SHADER);
     
     auto source = ament_index_cpp::get_package_prefix("ft_cluster_cpp") + "/lib/ft_cluster_cpp/shaders/compute.glsl";
-    cout << source << endl;
     ifstream shaderSource(source);
     string shaderText(istreambuf_iterator<char>{shaderSource},
                       istreambuf_iterator<char>{});
@@ -84,12 +75,14 @@ void GLCluster::loadShader() {
 
     this->batchSizeLocation = glGetUniformLocation(program, "batchSize");
     this->epsSquaredLocation = glGetUniformLocation(program, "epsSquared");
+    this->numberInBatchLocation = glGetUniformLocation(program, "numberInBatch");
+    this->numberOfPointsLocation = glGetUniformLocation(program, "numberOfPoints");
 }
 
 void GLCluster::generateBuffers() {
     glGenBuffers(1, &this->inputBuffer);
     glGenBuffers(1, &this->batchTargetsBuffer);
-    glGenBuffers(1, &this->outputBuffer);
+    glGenBuffers(1, &this->distancesBuffer);
     glGenBuffers(1, &this->sumBuffer);
     glGenBuffers(1, &this->neighborBuffer);
 }
@@ -107,6 +100,8 @@ void GLCluster::setBatchSize(int batchSize)  {
 
 void GLCluster::setInputData(float *data, int numPoints, bool aligned) {
     assert(this->canAccomodatePoints(numPoints));
+
+    glUniform1i(this->numberOfPointsLocation, numPoints);
     
     input.resize(numPoints * 4);
 
@@ -122,7 +117,8 @@ void GLCluster::setInputData(float *data, int numPoints, bool aligned) {
     
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->inputBuffer);
     glBufferData(GL_SHADER_STORAGE_BUFFER, 4 * numPoints * sizeof(float), input.data(), GL_STATIC_COPY);
-
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, this->inputBuffer);
+    
     regenerateBatchSizeDependentBuffers();
 }
 
@@ -141,12 +137,15 @@ bool GLCluster::canAccomodatePoints(int points) {
 
 template <typename MapType> void GLCluster::generateOutput(int targetIndex, MapType & neighbors)
     {
+        regenerateBatchSizeDependentBuffers();
+        
     assert(this->batchSize && this->numberOfInputPoints() && this->eps);
     assert(targetIndex < this->numberOfInputPoints() && targetIndex >= 0);
     int numberInBatch = std::min(this->numberOfInputPoints() - targetIndex, batchSize);
+    glUniform1i(this->numberInBatchLocation, numberInBatch);
         
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->batchTargetsBuffer);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, 4 * sizeof(float) * numberInBatch, this->input.data(), GL_STATIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, 4 * sizeof(float) * numberInBatch, this->input.data() + targetIndex * 4, GL_STATIC_COPY);
 
     std::fill(this->sums.begin(), this->sums.end(), 0);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->sumBuffer);
@@ -157,18 +156,32 @@ template <typename MapType> void GLCluster::generateOutput(int targetIndex, MapT
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int) * batchSize * maximumPoints, this->neighbors.data(), GL_STATIC_COPY);
     
     // Don't do any extra space handling for now
-    glDispatchCompute(this->maximumPoints / 64, numberInBatch, 1);
+    glDispatchCompute(this->maximumPoints / LOCAL_SIZE_X, numberInBatch, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->sumBuffer);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, this->batchSize * sizeof(int), this->sums.data());
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numberInBatch * sizeof(int), this->sums.data());
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->distancesBuffer);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numberInBatch * this->maximumPoints * sizeof(float), this->distances.data());
     
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->neighborBuffer);
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, this->maximumPoints * this->batchSize * sizeof(int), this->neighbors.data());
-
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, this->maximumPoints * numberInBatch * sizeof(int), this->neighbors.data());
+    #define DISPLAY
     for (int i = 0; i < numberInBatch; i++) {
+        #ifdef DISPLAY
+        //cout << "Point " << targetIndex + i << " has " << sums[i] << " neighbors" << endl;
+        //cout << " Distances" << endl;
+        for (int j = 0; j < this->numberOfInputPoints(); j++) {
+            //cout << " - " << this->distances[this->maximumPoints*i + j] << " from " << j << endl;
+        }
+        //cout << " Neighbors" << endl;
+        #endif
         for (int j = 0; j < this->sums[i]; j++) {
             int neighbor = this->neighbors[this->maximumPoints*i + j];
+            #ifdef DISPLAY
+            //cout << " - " << neighbor << endl;
+            #endif
             assert(neighbor < this->maximumPoints);
             neighbors[targetIndex+i].push_back(neighbor);
         }
@@ -179,8 +192,8 @@ template <typename MapType> void GLCluster::generateOutput(int targetIndex, MapT
 void GLCluster::destroy() {
     glDeleteProgram(this->program);
     glDeleteBuffers(1, &this->inputBuffer);
-    glDeleteBuffers(1, &this->outputBuffer);
     glDeleteBuffers(1, &this->batchTargetsBuffer);
+    glDeleteBuffers(1, &this->distancesBuffer);
     glDeleteBuffers(1, &this->sumBuffer);
     glDeleteBuffers(1, &this->neighborBuffer);
 }
@@ -189,8 +202,8 @@ GLCluster::~GLCluster() { this->destroy(); }
 
 void GLCluster::setMaximumPoints(int maximumPoints) {
     if (maximumPoints != this->maximumPoints) {
-        this->maximumPoints = maximumPoints + (64 - maximumPoints % 64); // Pad
-        regenerateInputBuffer();
+        this->maximumPoints = maximumPoints + (LOCAL_SIZE_X - maximumPoints % LOCAL_SIZE_X); // Pad
+        glUniform1i(this->batchSizeLocation, this->maximumPoints);
     }
 }
 
@@ -209,9 +222,9 @@ void testGLCluster() {
     }
 
     GLCluster cluster;
-    cluster.setMaximumPoints(maximumPoints);
     cluster.setEps(2.0);
     cluster.setBatchSize(100);
+    cluster.setMaximumPoints(maximumPoints);
 
     std::vector<std::vector<int>> neighbors(maximumPoints);
   
@@ -291,8 +304,10 @@ void initializeEGL(){
     } else {
         // Chose specific screen, by using m_renderDevice
         if (m_data->m_renderDevice < 0 || m_data->m_renderDevice >= num_devices) {
-            fprintf(stderr, "Invalid render_device choice: %d < %d.\n", m_data->m_renderDevice, num_devices);
-            exit(EXIT_FAILURE);
+            m_data->m_renderDevice = 1;
+            m_renderDevice = m_data->m_renderDevice;
+            //fprintf(stderr, "Invalid render_device choice: %d < %d.\n", m_data->m_renderDevice, num_devices);
+            //exit(EXIT_FAILURE);
         }
 
         // Set display

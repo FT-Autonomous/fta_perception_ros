@@ -19,12 +19,15 @@ private:
     unsigned int outputBuffer = 0;
     unsigned int batchTargetsBuffer = 0;
     unsigned int sumBuffer = 0;
+    unsigned int distancesBuffer = 0;
     unsigned int neighborBuffer = 0;
     unsigned int program = 0;
     unsigned int batchSizeLocation;
+    unsigned int numberInBatchLocation;
     unsigned int epsSquaredLocation;
+    unsigned int numberOfPointsLocation;
     std::vector<float> input;
-    std::vector<float> output;
+    std::vector<float> distances;
     std::vector<int> sums;
     std::vector<int> neighbors;
 

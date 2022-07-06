@@ -2,6 +2,7 @@
 #include "perception_msgs/srv/detail/get_centers__struct.hpp"
 #include "sensor_msgs/msg/detail/image__struct.hpp"
 #include <functional>
+#include <filesystem>
 
 #include <mutex>
 #include <future>
@@ -49,7 +50,7 @@ public:
 	: rclcpp::Node("perception_node") {
 	using namespace std::placeholders;
 	this->declare_parameter<int>("service_wait_time_ms", 1000);
-	this->declare_parameter<int>("downsample_factor", 5);
+	this->declare_parameter<int>("downsample_factor", 1);
 	this->cluster_client = this->create_client<Cluster>("cluster");
 	this->segment_client = this->create_client<ForceSegment>("force_segment");
 	this->center_estimation_client = this->create_client<GetCenters>("estimate_centers");
@@ -125,8 +126,8 @@ public:
 
     void publish(std::shared_future<GetCenters::Response::SharedPtr> future) {
         RCLCPP_INFO_STREAM(this->get_logger(), "HERE " << future.get()->cones.blue_cones.size());
-	this->cone_publisher->publish(future.get()->cones);
-    this->lock.unlock();
+	//this->cone_publisher->publish(future.get()->cones);
+        lock.unlock();
     }
 };
 
