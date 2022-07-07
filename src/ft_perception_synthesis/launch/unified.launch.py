@@ -13,12 +13,9 @@ def generate_launch_description():
     
     return LaunchDescription([
         DeclareLaunchArgument("zed_source", default_value="bag"),
-        DeclareLaunchArgument("bag_source", default_value="test_bag"),
+        DeclareLaunchArgument("bag_source", default_value="moving_bag"),
         DeclareLaunchArgument("cluster_method", default_value="cpp"),
         DeclareLaunchArgument("visualize", default_value="yes"),
-
-        GroupAction(actions=[
-        PushRosNamespace('perception'),
         
         # Necessary Nodes
         Node(package='ft_perception_synthesis',
@@ -39,7 +36,7 @@ def generate_launch_description():
              parameters=[shared_config_file],
              condition=IfCondition(PythonExpression(["'", LaunchConfiguration("zed_source"), "'== 'camera'"]))),
         ExecuteProcess(
-            cmd=['ros2 bag play --remap /zed:=/perception/zed --loop ', PathJoinSubstitution([FindPackageShare('ft_perception_synthesis'), 'bags', LaunchConfiguration('bag_source')])],
+            cmd=['ros2 bag play --loop ', PathJoinSubstitution([FindPackageShare('ft_perception_synthesis'), 'bags', LaunchConfiguration('bag_source')])],
             shell=True, 
             condition=IfCondition(PythonExpression(["'", LaunchConfiguration("zed_source"), "'== 'bag'"]))),
 
@@ -58,6 +55,5 @@ def generate_launch_description():
         ExecuteProcess(cmd=['rqt_graph'],
                        shell=True,
                        condition=visualize_condition)
-        ])
     ])
 
