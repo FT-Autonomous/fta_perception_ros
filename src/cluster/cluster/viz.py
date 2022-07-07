@@ -11,8 +11,8 @@ def accumulate_with_color(cones, color, x, y, c):
     for cone in cones:
         hmmm = cone.x + cone.y + cone.z
         if not (isnan(hmmm) or isinf(hmmm)):
-            x.append(cone.x)
-            y.append(cone.z)
+            x.append(cone.y)
+            y.append(cone.x)
             c.append(color)
 
 class VisualizeCones(Node):
@@ -26,6 +26,9 @@ class VisualizeCones(Node):
     def callback(self, cone_array):
         print("here brah")
         plt.clf()
+        plt.title("Cone Positions")
+        plt.xlabel("Cone X in meters")
+        plt.ylabel("Cone Y in meters")
         scatter_args = dict(x=[], y=[], c=[])
         accumulate_with_color(cone_array.blue_cones, [0,0,1], **scatter_args)
         accumulate_with_color(cone_array.yellow_cones, [0.4,0.4,0.1], **scatter_args)

@@ -167,7 +167,7 @@ template <typename MapType> void GLCluster::generateOutput(int targetIndex, MapT
     
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->neighborBuffer);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, this->maximumPoints * numberInBatch * sizeof(int), this->neighbors.data());
-    #define DISPLAY
+    //#define DISPLAY
     for (int i = 0; i < numberInBatch; i++) {
         #ifdef DISPLAY
         //cout << "Point " << targetIndex + i << " has " << sums[i] << " neighbors" << endl;

@@ -19,10 +19,6 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <ament_index_cpp/get_package_prefix.hpp>
 
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-
 #include "cluster_gl.hpp"
 
 #include "geometry_msgs/msg/detail/point__struct.hpp"
@@ -177,9 +173,12 @@ private:
                     if (cone.area > 5) {
                         Point center = div_point(cone.sum, cone.area);
                         geometry_msgs::msg::Point ros_point;
-                        ros_point.x = center[0];
-                        ros_point.y = center[1];
-                        ros_point.z = center[2];
+                        // SLAM COORDINATE system uses X to represent the distance
+                        // in front of the car and y to represent
+                        // the distance left or right of the car.
+                        ros_point.x = -center[2] / 1000;
+                        ros_point.y = center[0] / 1000;
+                        //ros_point.z = -center[2] / 1000;
                         class_cone_array->push_back(ros_point);
                         cout << "Found a cone {\n x:" << ros_point.x << ",\n z:" << ros_point.z << "\n} of class " << c << endl;
                     }
@@ -214,10 +213,6 @@ private:
 	image.data = cluster(bytes_to_points(request->points.data),
 			     request->segmentation_mask.data,
 			     this->get_parameter("eps").get_parameter_value().get<float>());
-        cv::Mat depthImage = cv::Mat(image.height, image.width, CV_8UC1);
-        memcpy(depthImage.data, image.data.data(), image.data.size());
-        cv::imshow("Lol", depthImage);
-        cv::waitKey(1);
     }
     
 public:
