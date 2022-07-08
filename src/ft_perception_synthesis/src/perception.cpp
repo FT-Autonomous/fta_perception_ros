@@ -68,7 +68,6 @@ public:
     }
 
     void segment(Zed::SharedPtr zed_msg) {
-        RCLCPP_INFO(this->get_logger(), "trying to segment");
         if (lock.try_lock()) {
             auto segment_request = std::make_shared<ForceSegment::Request>();
             this->last_depth_map = zed_msg->depth;
