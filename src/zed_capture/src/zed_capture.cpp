@@ -33,7 +33,7 @@ public:
 	: rclcpp::Node("zed_capture")
     {
 	sl::InitParameters init_parameters;
-	init_parameters.camera_resolution = sl::RESOLUTION::VGA;
+	init_parameters.camera_resolution = sl::RESOLUTION::HD720;
 	init_parameters.depth_maximum_distance = 10000.0f;
 	init_parameters.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP;
 	auto returned_state = camera.open(init_parameters);
@@ -48,7 +48,7 @@ public:
 	this->runtime_parameters.sensing_mode = sl::SENSING_MODE::FILL;
 	this->camera_configuration = camera.getCameraInformation().camera_configuration;
 	this->publisher = this->create_publisher<Zed>("zed", 1);
-	this->zed_timer = this->create_wall_timer(500ms, std::bind(&ZedCapture::capture, this));
+	this->zed_timer = this->create_wall_timer(5ms, std::bind(&ZedCapture::capture, this));
 	RCLCPP_INFO(this->get_logger(), "Initialised ZEDCapture node");
     }
 
