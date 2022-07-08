@@ -47,7 +47,7 @@ public:
 	: rclcpp::Node("perception_node") {
 	using namespace std::placeholders;
 	this->declare_parameter<int>("service_wait_time_ms", 1000);
-	this->declare_parameter<int>("downsample_factor", 1);
+	this->declare_parameter<int>("downsample_factor", 2);
 	this->cluster_client = this->create_client<Cluster>("cluster");
         RCLCPP_INFO(this->get_logger(), "cluster available");
 	this->segment_client = this->create_client<ForceSegment>("force_segment");
