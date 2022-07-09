@@ -48,7 +48,7 @@ public:
 	this->runtime_parameters.sensing_mode = sl::SENSING_MODE::FILL;
 	this->camera_configuration = camera.getCameraInformation().camera_configuration;
 	this->publisher = this->create_publisher<Zed>("zed", 1);
-	this->zed_timer = this->create_wall_timer(5ms, std::bind(&ZedCapture::capture, this));
+	this->zed_timer = this->create_wall_timer(100ms, std::bind(&ZedCapture::capture, this));
 	RCLCPP_INFO(this->get_logger(), "Initialised ZEDCapture node");
     }
 

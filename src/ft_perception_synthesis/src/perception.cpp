@@ -47,7 +47,7 @@ public:
 	: rclcpp::Node("perception_node") {
 	using namespace std::placeholders;
 	this->declare_parameter<int>("service_wait_time_ms", 1000);
-	this->declare_parameter<int>("downsample_factor", 2);
+	this->declare_parameter<int>("downsample_factor", 1);
 	this->cluster_client = this->create_client<Cluster>("cluster");
         RCLCPP_INFO(this->get_logger(), "cluster available");
 	this->segment_client = this->create_client<ForceSegment>("force_segment");
@@ -68,15 +68,12 @@ public:
     }
 
     void segment(Zed::SharedPtr zed_msg) {
-        RCLCPP_INFO(this->get_logger(), "trying to segment");
         if (lock.try_lock()) {
             auto segment_request = std::make_shared<ForceSegment::Request>();
             this->last_depth_map = zed_msg->depth;
             segment_request->input = zed_msg->color;
             this->make_sure_service_is_ready<ForceSegment>(this->segment_client);
             this->segment_client->async_send_request(segment_request, std::bind(&PerceptionNode::cluster, this, _1));
-        } else {
-            RCLCPP_INFO(this->get_logger(), "not gonna segment");
         }
     }
 

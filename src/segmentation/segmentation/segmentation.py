@@ -33,7 +33,6 @@ class Segmentation(Node):
         self.get_logger().info('Initialised Segmentation Node')
         
     def segment(self, image):
-        self.get_logger().info("Segmenting...")
         cv_image = np.array(image.data).reshape(image.height, image.width, 3)
         output = np.uint8(self.ft_semantic_segmentation.live.predict(cv_image, model=self.model, device=self.device))
         return Image(
