@@ -2,7 +2,7 @@ name: Who tests the tester
 on: [pull_request]
 jobs:
   test:
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     steps:
       - run: |
           apt-get -y install docker
