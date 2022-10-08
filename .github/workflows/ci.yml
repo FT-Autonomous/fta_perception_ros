@@ -1,5 +1,5 @@
 name: Who tests the tester
-on: [pull]
+on: [pull_request]
 jobs:
   test:
     runs-on: ubuntu
