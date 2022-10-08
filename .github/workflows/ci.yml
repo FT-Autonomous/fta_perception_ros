@@ -4,15 +4,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo apt-get -y install docker
-          sudo apt-get -y install python3
       - uses: actions/checkout@v3
       - run: |
-          echo 'your code' > 'my laptop'
+          echo 'your code' > 'my laptop.html'
       - uses: actions/upload-artifact@v3
         with:
-          path: 'my laptop'
+          path: 'my laptop.html'
 
 
 
