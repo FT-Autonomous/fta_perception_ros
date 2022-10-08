@@ -8,7 +8,8 @@ jobs:
       - run: |
           echo '# Hello there
           Would bob have done what he did, had he known what would
-          happen to him? <video></video>' > $GITHUB_STEP_SUMMARY
+          happen to him?
+          <video src=https://google.com></video>' > $GITHUB_STEP_SUMMARY
 
 
 
