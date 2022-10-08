@@ -11,7 +11,7 @@ jobs:
           echo "# Hello there
           Would bob have done what he did, had he known what would
           happen to him?
-          <video src='data:video/mp4;base64,$(cat out.base64 | tr -d '\n')'/></video>" > $GITHUB_STEP_SUMMARY
+          <video src='https://google.com/test.mp4'/></video>" > $GITHUB_STEP_SUMMARY
 
 
 
