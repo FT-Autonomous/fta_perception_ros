@@ -6,10 +6,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          echo 'your code' > 'my laptop.html'
-      - uses: actions/upload-artifact@v3
-        with:
-          path: 'my laptop.html'
+          echo '# Hello there
+          Would bob have done what he did, had he known what would
+          happen to him? <video></video>' > $GITHUB_STEP_SUMMARY
 
 
 
