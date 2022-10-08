@@ -1,0 +1,9 @@
+name: Who tests the tester
+on: [pull]
+jobs:
+  test:
+    runs-on: ubuntu
+    steps:
+      - run: |
+          apt-get -y install docker
+          apt-get -y install python
