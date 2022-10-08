@@ -11,7 +11,7 @@ jobs:
       - run: |
           echo 'your code' > 'my laptop'
       - uses: actions/upload-artifact@v3
-        path: 'my laptop'
+        path: "my laptop"
 
 
 
