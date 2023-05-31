@@ -5,20 +5,20 @@ from matplotlib import pyplot as plt
 import rclpy
 from math import isnan, isinf
 from rclpy.node import Node
-from eufs_msgs.msg import ConeArray
+from eufs_msgs.msg import ConeArrayWithCovariance
 
 def accumulate_with_color(cones, color, x, y, c):
     for cone in cones:
-        hmmm = cone.x + cone.y + cone.z
+        hmmm = cone.point.x + cone.point.y + cone.point.z
         if not (isnan(hmmm) or isinf(hmmm)):
-            x.append(cone.y)
-            y.append(cone.x)
+            x.append(cone.point.y)
+            y.append(cone.point.x)
             c.append(color)
 
 class VisualizeCones(Node):
     def __init__(self):
         super().__init__("visualize_cones")
-        self.subscriber = self.create_subscription(ConeArray, "cones", self.callback, 1)
+        self.subscriber = self.create_subscription(ConeArrayWithCovariance, "cones", self.callback, 1)
         plt.ion()
         plt.show()
         print("we done out here brah")

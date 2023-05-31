@@ -15,7 +15,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <eufs_msgs/srv/cluster.hpp>
-#include <eufs_msgs/msg/cone_array.hpp>
+#include <eufs_msgs/msg/cone_array_with_covariance.hpp>
+#include <eufs_msgs/msg/cone_with_covariance.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <ament_index_cpp/get_package_prefix.hpp>
 
@@ -118,17 +119,20 @@ class ClusterNode
     : public rclcpp::Node {
 private:
     using Cluster = eufs_msgs::srv::Cluster;
-    using ConeArray = eufs_msgs::msg::ConeArray;
+    using ConeArrayWithCovariance = eufs_msgs::msg::ConeArrayWithCovariance;
+    using ConeWithCovariance = eufs_msgs::msg::ConeWithCovariance;
     GLCluster gl_cluster;
     rclcpp::Service<Cluster>::SharedPtr service;
-    rclcpp::Publisher<ConeArray>::SharedPtr cone_array_publisher;
+    rclcpp::Publisher<ConeArrayWithCovariance>::SharedPtr cone_array_publisher;
     
     std::vector<uchar> cluster(const std::vector<Point> & points,
 			       const std::vector<uchar> & class_map,
 			       float epsilon)
     {
 	std::vector<uchar> cluster_map(points.size());
-        eufs_msgs::msg::ConeArray cone_array;
+        eufs_msgs::msg::ConeArrayWithCovariance cone_array;
+        cone_array.header.frame_id = "base_footprint";
+        cone_array.header.stamp = this->get_clock()->now();
         
         this->gl_cluster.setEps(epsilon);
         
@@ -160,7 +164,7 @@ private:
 
             std::vector<uchar> class_cluster_map(class_points.size());
 
-            std::vector<geometry_msgs::msg::Point> * class_cone_array; 
+            std::vector<ConeWithCovariance> * class_cone_array; 
             if (c == 1) class_cone_array = &cone_array.blue_cones;
             else if (c == 2) class_cone_array = &cone_array.yellow_cones;
             else class_cone_array = &cone_array.orange_cones;
@@ -172,15 +176,11 @@ private:
                         < this->get_parameter("area_threshold").get_parameter_value().get<int>();*/
                     if (cone.area > 5) {
                         Point center = div_point(cone.sum, cone.area);
-                        geometry_msgs::msg::Point ros_point;
-                        // SLAM COORDINATE system uses X to represent the distance
-                        // in front of the car and y to represent
-                        // the distance left or right of the car.
-                        ros_point.x = -center[2] / 1000;
-                        ros_point.y = center[0] / 1000;
-                        //ros_point.z = -center[2] / 1000;
-                        class_cone_array->push_back(ros_point);
-                        cout << "Found a cone {\n x:" << ros_point.x << ",\n z:" << ros_point.z << "\n} of class " << c << endl;
+                        ConeWithCovariance cone;
+                        cone.point.x = -center[2] / 1000.0;
+                        cone.point.y = center[0] / 1000.0;
+                        class_cone_array->push_back(cone);
+                        cout << "Found a cone {\n x:" << cone.point.x << ",\n z:" << cone.point.z << "\n} of class " << c << endl;
                     }
                     
                     cluster_id++;
@@ -227,7 +227,7 @@ public:
         this->gl_cluster.setEps(this->get_parameter("eps").get_parameter_value().get<float>());
 	this->service = this->create_service<Cluster>("cluster",
 						      std::bind(&ClusterNode::cluster_callback, this, _1, _2));
-        this->cone_array_publisher = this->create_publisher<ConeArray>("cones", 1);
+        this->cone_array_publisher = this->create_publisher<ConeArrayWithCovariance>("cones", 1);
 	RCLCPP_INFO(this->get_logger(), "Initialised c++ cluster node");
     }
 };

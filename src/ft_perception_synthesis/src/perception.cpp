@@ -27,14 +27,12 @@ private:
     using CenterClient = rclcpp::Client<GetCenters>;
     using SegmentClient = rclcpp::Client<ForceSegment>;
     using ClusterClient = rclcpp::Client<Cluster>;
-    using ConeArrayPublisher = rclcpp::Publisher<ConeArray>;
     
     rclcpp::Subscription<Zed>::SharedPtr zed_subscription;
     
     CenterClient::SharedPtr center_estimation_client;
     SegmentClient::SharedPtr segment_client;
     ClusterClient::SharedPtr cluster_client;
-    ConeArrayPublisher::SharedPtr cone_publisher;
 
     Image last_depth_map;
     Image last_segmentation_mask;
@@ -52,8 +50,6 @@ public:
         RCLCPP_INFO(this->get_logger(), "cluster available");
 	this->segment_client = this->create_client<ForceSegment>("force_segment");
         RCLCPP_INFO(this->get_logger(), "force segment available");
-	this->cone_publisher = this->create_publisher<ConeArray>("cones", 1);
-        RCLCPP_INFO(this->get_logger(), "cone pulbisher made");
 	this->zed_subscription = this->create_subscription<Zed>("zed", 1, std::bind(&PerceptionNode::segment, this, _1));
         RCLCPP_INFO(this->get_logger(), "zed subscription made");
     }
@@ -117,18 +113,6 @@ public:
 
     void estimate_centers(std::shared_future<Cluster::Response::SharedPtr> future) {
         lock.unlock(); // Hacky way of doing things
-	//auto center_request = std::make_shared<GetCenters::Request>();
-	//center_request->clusters = future.get()->clusters;
-	//center_request->segmentation_mask = this->last_segmentation_mask;
-	//center_request->depth = this->last_depth_map;
-	//this->make_sure_service_is_ready<GetCenters>(this->center_estimation_client);
-	//this->center_estimation_client->async_send_request(center_request, std::bind(&PerceptionNode::publish, this, _1));
-    }
-
-    void publish(std::shared_future<GetCenters::Response::SharedPtr> future) {
-        RCLCPP_INFO_STREAM(this->get_logger(), "HERE " << future.get()->cones.blue_cones.size());
-	this->cone_publisher->publish(future.get()->cones);
-        lock.unlock();
     }
 };
 
