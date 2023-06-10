@@ -10,6 +10,7 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <eufs_msgs/msg/zed.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 using namespace std::chrono_literals;
 using namespace std;
@@ -19,6 +20,7 @@ class ZedCapture
 private:
     using Image = sensor_msgs::msg::Image;
     using Zed = eufs_msgs::msg::Zed;
+    bool enabled;
     mutex mtx;
     sl::Camera camera;
     sl::CameraConfiguration camera_configuration;
@@ -27,11 +29,26 @@ private:
     sl::Mat rgb;
     rclcpp::TimerBase::SharedPtr zed_timer;
     rclcpp::Publisher<Zed>::SharedPtr publisher;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr enabled_sub;
     
 public:
     ZedCapture()
 	: rclcpp::Node("zed_capture")
     {
+	using namespace std::placeholders;
+	this->publisher = this->create_publisher<Zed>("zed", 1);
+	this->start_zed();
+	this->enabled_sub = this->create_subscription<std_msgs::msg::Bool>("/perception/enabled", 1, std::bind(&ZedCapture::enabled_cb, this, _1));
+	RCLCPP_INFO(this->get_logger(), "Initialised ZEDCapture node");
+    }
+
+    void enabled_cb(std_msgs::msg::Bool::SharedPtr enabled) {
+	if (enabled->data and !this->enabled) start_zed();
+	else if (!enabled->data and this->enabled) stop_zed();
+    }
+
+    void start_zed() {
+	this->enabled = true;
 	sl::InitParameters init_parameters;
 	init_parameters.camera_resolution = sl::RESOLUTION::HD720;
 	init_parameters.depth_maximum_distance = 10000.0f;
@@ -42,17 +59,21 @@ public:
 	    RCLCPP_FATAL_STREAM(this->get_logger(), "Failed to open ZED Camera" << returned_state);
 	    rclcpp::shutdown();
 	}
-	
+
 	RCLCPP_INFO(this->get_logger(), "Opened ZED Camera");
 	this->runtime_parameters.confidence_threshold = 50;
-	this->runtime_parameters.sensing_mode = sl::SENSING_MODE::FILL;
-	this->camera_configuration = camera.getCameraInformation().camera_configuration;
-	this->publisher = this->create_publisher<Zed>("zed", 1);
+	this->camera_configuration = this->camera.getCameraInformation().camera_configuration;
 	this->zed_timer = this->create_wall_timer(100ms, std::bind(&ZedCapture::capture, this));
-	RCLCPP_INFO(this->get_logger(), "Initialised ZEDCapture node");
+    }
+
+    void stop_zed() {
+	this->enabled = false;
+	this->zed_timer->cancel();
+	camera.close();
     }
 
     void capture() {
+	    if (!mtx.try_lock()) return;
 	auto code = this->camera.grab(this->runtime_parameters);
 	if (sl::ERROR_CODE::SUCCESS == code) {
 	    this->camera.retrieveMeasure(this->xyz, sl::MEASURE::XYZ);
@@ -95,6 +116,7 @@ public:
 	} else {
 	    RCLCPP_WARN(this->get_logger(), "Could not grab image from ZED");
 	}
+	mtx.unlock();
     }
 };
 
