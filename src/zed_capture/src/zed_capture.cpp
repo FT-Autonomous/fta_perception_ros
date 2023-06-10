@@ -38,7 +38,7 @@ public:
 	using namespace std::placeholders;
 	this->publisher = this->create_publisher<Zed>("zed", 1);
 	this->start_zed();
-	this->enabled_sub = this->create_subscription<std_msgs::msg::Bool>("/perception/enabled", 1, std::bind(&ZedCapture::enabled_cb, this, _1));
+	this->enabled_sub = this->create_subscription<std_msgs::msg::Bool>("enabled", 1, std::bind(&ZedCapture::enabled_cb, this, _1));
 	RCLCPP_INFO(this->get_logger(), "Initialised ZEDCapture node");
     }
 
