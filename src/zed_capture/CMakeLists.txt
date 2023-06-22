@@ -5,7 +5,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda-11.7)
+set(CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda-11.4)
 
 find_package(ament_cmake REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -13,10 +13,10 @@ find_package(rclcpp REQUIRED)
 find_package(ZED 3 REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(CUDA 11.2 REQUIRED)
-find_package(eufs_msgs REQUIRED)
+find_package(ft_msgs REQUIRED)
 
 add_executable(zed_capture src/zed_capture.cpp)
-ament_target_dependencies(zed_capture rclcpp OpenCV sensor_msgs eufs_msgs ZED CUDA)
+ament_target_dependencies(zed_capture rclcpp OpenCV sensor_msgs ft_msgs ZED CUDA)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

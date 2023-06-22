@@ -9,7 +9,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <eufs_msgs/msg/zed.hpp>
+#include <ft_msgs/msg/zed.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 using namespace std::chrono_literals;
@@ -19,7 +19,7 @@ class ZedCapture
     : public rclcpp::Node {
 private:
     using Image = sensor_msgs::msg::Image;
-    using Zed = eufs_msgs::msg::Zed;
+    using Zed = ft_msgs::msg::Zed;
     bool enabled;
     mutex mtx;
     sl::Camera camera;
@@ -50,7 +50,7 @@ public:
     void start_zed() {
 	this->enabled = true;
 	sl::InitParameters init_parameters;
-	init_parameters.camera_resolution = sl::RESOLUTION::HD720;
+	init_parameters.camera_resolution = sl::RESOLUTION::VGA;
 	init_parameters.depth_maximum_distance = 10000.0f;
 	init_parameters.coordinate_system = sl::COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP;
 	auto returned_state = camera.open(init_parameters);

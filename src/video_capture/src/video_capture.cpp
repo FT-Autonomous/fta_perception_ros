@@ -22,8 +22,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 
-#include <eufs_msgs/srv/force_segment.hpp>
-#include <eufs_msgs/msg/zed.hpp>
+#include <ft_msgs/msg/zed.hpp>
 
 using namespace std::chrono_literals;
 
@@ -31,7 +30,7 @@ class VideoCaptureNode
     : public rclcpp::Node {
 private:
     using Image = sensor_msgs::msg::Image;
-    using Zed = eufs_msgs::msg::Zed;
+    using Zed = ft_msgs::msg::Zed;
     using ZedPublihser = rclcpp::Publisher<Zed>;
 
     unsigned int frame_id;

@@ -10,8 +10,8 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Header
 from ament_index_python.packages import get_package_prefix
-from eufs_msgs.srv import ForceSegment
-from eufs_msgs.msg import Zed
+from ft_msgs.srv import ForceSegment
+from ft_msgs.msg import Zed
 
 class Segmentation(Node):
     def __init__(self):
@@ -21,8 +21,8 @@ class Segmentation(Node):
         self.declare_parameter("model", "cgnet")
         self.declare_parameter("weights", os.path.join(get_package_prefix('segmentation'), 'share/segmentation/', 'cgnet.ts'))
         sys.path.append(os.path.join(get_package_prefix('ft_semantic_segmentation'), 'lib'))
-        import ft_semantic_segmentation
-        self.ft_semantic_segmentation = ft_semantic_segmentation
+        from ft_semantic_segmentation.live import predict
+        self.predict = predict
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = torch.jit.load(self.get_parameter('weights').get_parameter_value().string_value, map_location=self.device)
         self.get_logger().info('Loaded model')
@@ -34,7 +34,7 @@ class Segmentation(Node):
         
     def segment(self, image):
         cv_image = np.array(image.data).reshape(image.height, image.width, 3)
-        output = np.uint8(self.ft_semantic_segmentation.live.predict(cv_image, model=self.model, device=self.device))
+        output = np.uint8(self.predict(cv_image, model=self.model, device=self.device))
         return Image(
             header=Header(frame_id=image.header.frame_id),
             height=output.shape[0],

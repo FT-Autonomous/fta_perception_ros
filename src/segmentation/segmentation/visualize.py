@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from eufs_msgs.msg import Zed
+from ft_msgs.msg import Zed
 import numpy as np
 import cv2 as cv
 import os
@@ -15,14 +15,15 @@ class VisualizeSegmentation(Node):
         self.image_subscription = self.create_subscription(Zed, "zed", self.image_callback, 1)
         self.show_timer = self.create_timer(0.1, self.show_callback)
         sys.path.append(os.path.join(get_package_prefix('ft_semantic_segmentation'), 'lib'))
-        import ft_semantic_segmentation
-        self.ft_semantic_segmentation = ft_semantic_segmentation
+        from ft_semantic_segmentation.live import merge, colorise
+        self.merge = merge
+        self.colorise = colorise
         self.image = None
         self.mask = None
 
     def show_callback(self):
         if self.image is not None and self.mask is not None:
-            image_to_show = self.ft_semantic_segmentation.live.merge(self.image, self.mask)
+            image_to_show = self.merge(self.image, self.mask)
             cv.imshow("Visualisation", image_to_show)
             cv.waitKey(1)
         
@@ -31,7 +32,7 @@ class VisualizeSegmentation(Node):
 
     def mask_callback(self, mask):
         prediction = np.asarray(mask.data, dtype=np.uint8).reshape(mask.height, mask.width)
-        self.mask = self.ft_semantic_segmentation.live.colorise(prediction)
+        self.mask = self.colorise(prediction)
 
 def main(args=None):
     rclpy.init(args=args)

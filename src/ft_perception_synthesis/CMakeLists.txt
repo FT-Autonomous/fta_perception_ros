@@ -9,10 +9,11 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(eufs_msgs REQUIRED)
+find_package(ft_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 
 add_executable(perception src/perception.cpp)
-ament_target_dependencies(perception rclcpp eufs_msgs OpenCV)
+ament_target_dependencies(perception rclcpp ft_msgs eufs_msgs OpenCV)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
