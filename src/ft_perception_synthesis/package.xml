@@ -8,6 +8,7 @@
   <license>TODO: License declaration</license>
 
   <build_depend>eufs_msgs</build_depend>
+  <build_depend>ft_msgs</build_depend>
   <build_depend>rclcpp</build_depend>
   
   <buildtool_depend>ament_cmake</buildtool_depend>

@@ -14,7 +14,7 @@
 #include <cstdlib>
 
 #include <rclcpp/rclcpp.hpp>
-#include <eufs_msgs/srv/cluster.hpp>
+#include <ft_msgs/srv/cluster.hpp>
 #include <eufs_msgs/msg/cone_array_with_covariance.hpp>
 #include <eufs_msgs/msg/cone_with_covariance.hpp>
 #include <sensor_msgs/image_encodings.hpp>
@@ -118,7 +118,7 @@ ConeMetric traverse(int index, int cluster_id, const std::vector<std::vector<int
 class ClusterNode
     : public rclcpp::Node {
 private:
-    using Cluster = eufs_msgs::srv::Cluster;
+    using Cluster = ft_msgs::srv::Cluster;
     using ConeArrayWithCovariance = eufs_msgs::msg::ConeArrayWithCovariance;
     using ConeWithCovariance = eufs_msgs::msg::ConeWithCovariance;
     GLCluster gl_cluster;
@@ -178,7 +178,7 @@ private:
                         Point center = div_point(cone.sum, cone.area);
                         ConeWithCovariance cone;
                         cone.point.x = -center[2] / 1000.0;
-                        cone.point.y = center[0] / 1000.0;
+                        cone.point.y = -center[0] / 1000.0;
                         class_cone_array->push_back(cone);
                         cout << "Found a cone {\n x:" << cone.point.x << ",\n z:" << cone.point.z << "\n} of class " << c << endl;
                     }
