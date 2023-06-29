@@ -131,7 +131,7 @@ private:
     {
 	std::vector<uchar> cluster_map(points.size());
         eufs_msgs::msg::ConeArrayWithCovariance cone_array;
-        cone_array.header.frame_id = "base_footprint";
+        this->get_parameter("frame", cone_array.header.frame_id);
         cone_array.header.stamp = this->get_clock()->now();
         
         this->gl_cluster.setEps(epsilon);
@@ -177,6 +177,7 @@ private:
                     if (cone.area > 5) {
                         Point center = div_point(cone.sum, cone.area);
                         ConeWithCovariance cone;
+                        // Convert from millimeters to meters
                         cone.point.x = -center[2] / 1000.0;
                         cone.point.y = -center[0] / 1000.0;
                         class_cone_array->push_back(cone);
@@ -219,6 +220,7 @@ public:
     ClusterNode()
 	: rclcpp::Node("cluster_node") {
 	using namespace std::placeholders;
+        this->declare_parameter<std::string>("frame", "livox_frame");
 	this->declare_parameter<float>("eps", 500);
         this->declare_parameter<float>("depth_allowance", 0.01); // Expected decrease in cone size per centimeter
         this->declare_parameter<int>("area_threshold", 10);
