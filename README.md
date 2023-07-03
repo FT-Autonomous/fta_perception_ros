@@ -46,7 +46,7 @@ colcon build
 If your device doesn't support cuda, use the build command.
 
 ```
-colcon build --base-paths src/{ft_perception_synthesis,segmentation,cluster,center_estimation,perception_msgs}
+colcon build --base-paths src/{ft_perception_synthesis,segmentation,cluster,center_estimation}
 ```
 
 # Source Underlay and Overlay

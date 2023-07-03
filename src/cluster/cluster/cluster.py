@@ -4,7 +4,7 @@ import cv2 as cv
 from sklearn.cluster import OPTICS
 import numpy as np
 from math import nan
-from eufs_msgs.srv import Cluster
+from ft_msgs.srv import Cluster
 from sensor_msgs.msg import Image
 from std_msgs.msg import Header
 import array
