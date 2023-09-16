@@ -111,7 +111,7 @@ public:
 	this->cluster_client->async_send_request(cluster_request, std::bind(&PerceptionNode::estimate_centers, this, _1));
     }
 
-    void estimate_centers(std::shared_future<Cluster::Response::SharedPtr> future) {
+    void estimate_centers(std::shared_future<Cluster::Response::SharedPtr>) {
         lock.unlock(); // Hacky way of doing things
     }
 };

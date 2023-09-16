@@ -237,18 +237,9 @@ void testGLCluster() {
 void initializeEGL(){
     int m_windowWidth;
     int m_windowHeight;
-    int m_renderDevice;
-    
-    EGLBoolean success;
-    EGLint num_configs;
-    EGLConfig egl_config;
-    EGLSurface egl_surface;
-    EGLContext egl_context;
-    EGLDisplay egl_display;
     
     m_windowWidth = 256;
     m_windowHeight = 256;
-    m_renderDevice = -1;
 
     EGLint egl_config_attribs[] = {
         EGL_RED_SIZE, 8,
@@ -305,7 +296,6 @@ void initializeEGL(){
         // Chose specific screen, by using m_renderDevice
         if (m_data->m_renderDevice < 0 || m_data->m_renderDevice >= num_devices) {
             m_data->m_renderDevice = 1;
-            m_renderDevice = m_data->m_renderDevice;
             //fprintf(stderr, "Invalid render_device choice: %d < %d.\n", m_data->m_renderDevice, num_devices);
             //exit(EXIT_FAILURE);
         }
