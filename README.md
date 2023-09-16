@@ -43,14 +43,23 @@ pip3 install -r requirements.txt
 
 # Build
 
+If your device does support cuda, first delete the ignore file in the zed_capture folder.
+
+```
+rm src/zed_capture/COLCON_IGNORE
+```
+
+
+The run the followng:
+
 ```
 colcon build
 ```
 
-If your device doesn't support cuda, use the build command.
+If your device doesn't support cuda, just use the build command directly.
 
 ```
-colcon build --base-paths src/{ft_perception_synthesis,segmentation,cluster,center_estimation,ft_msgs}
+colcon build
 ```
 
 # Source Underlay and Overlay
