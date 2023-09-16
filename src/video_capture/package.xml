@@ -7,7 +7,6 @@
   <maintainer email="nozolo90@gmail.com">naza</maintainer>
   <license>TODO: License declaration</license>
 
-  <build_depend>perception_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>ft_msgs</build_depend>
   <build_depend>rclcpp</build_depend>

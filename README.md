@@ -14,6 +14,10 @@ sh get-resources
 
 ## Dependencies
 
+## ft_msgs
+
+Available in the FT-Autonomous repo [here](https://github.com/FT-Autonomous/ft_msgs/)
+
 ### C++
 
 This module depends unconditionally upon:
@@ -46,7 +50,7 @@ colcon build
 If your device doesn't support cuda, use the build command.
 
 ```
-colcon build --base-paths src/{ft_perception_synthesis,segmentation,cluster,center_estimation,perception_msgs}
+colcon build --base-paths src/{ft_perception_synthesis,segmentation,cluster,center_estimation,ft_msgs}
 ```
 
 # Source Underlay and Overlay
