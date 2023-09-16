@@ -50,8 +50,8 @@ struct ConeMetric {
     Point sum;
     int area;
 
-    ConeMetric(Point point) : area(1), sum(point) {}
-    ConeMetric() : area(0), sum{0,0,0} {}
+    ConeMetric(Point point) : sum(point), area(1)  {}
+    ConeMetric() : sum{0,0,0}, area(0) {}
 
     bool empty() {
         return area == 0;
@@ -73,6 +73,7 @@ struct ConeMetric {
     ConeMetric operator+=(const Point & other) {
         this->sum = add_points(this->sum, other);
         this->area++;
+        return *this;
     }
 
     ConeMetric operator+(const Point & other) const {
@@ -145,10 +146,10 @@ private:
             std::vector<int> map_back;
             std::vector<Point> class_points;
             
-            for (int i = 0; i < points.size(); i++) {
+            for (size_t i = 0; i < points.size(); i++) {
                 float sum = points[i][0] + points[i][1] + points[i][2];
                 if (sum != 0 and not std::isnan(sum) and not std::isinf(sum)
-                    and (class_map[i] == c or c == 3 && class_map[i] == 4)) {
+                    and (class_map[i] == c or (c == 3 && class_map[i] == 4))) {
                     class_points.push_back(points[i]);
                     map_back.push_back(i);
                 }
@@ -159,7 +160,7 @@ private:
             this->gl_cluster.setMaximumPoints(class_points.size());
             this->gl_cluster.setInputData((float*)class_points.data(), class_points.size(), false);
             
-            for (int i = 0; i < class_points.size(); i += this->gl_cluster.getBatchSize()) {
+            for (size_t i = 0; i < class_points.size(); i += this->gl_cluster.getBatchSize()) {
                 this->gl_cluster.generateOutput(i, class_neighbors_map);
             }
 
@@ -171,7 +172,7 @@ private:
             else if (c == 3) class_cone_array = &cone_array.orange_cones;
             else             class_cone_array = &cone_array.unknown_color_cones;
             
-            for (int i = 0; i < class_points.size(); i++) {
+            for (size_t i = 0; i < class_points.size(); i++) {
                 auto cone = traverse(i, cluster_id, class_neighbors_map, class_cluster_map, class_points, true);
                 if (!cone.empty()) {
                     /*cone.area * (1 + this->get_parameter("depth_allowance").get_parameter_value().get<float>())
@@ -191,7 +192,7 @@ private:
             }
 
             
-            for (int i = 0; i < class_points.size(); i++) {
+            for (size_t i = 0; i < class_points.size(); i++) {
                 if (class_cluster_map[i] != 255) {
                     cluster_map[map_back[i]] = class_cluster_map[i];
                 }
