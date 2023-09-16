@@ -22,7 +22,15 @@ endif()
 
 install(TARGETS perception
 	DESTINATION lib/${PROJECT_NAME})
-install(DIRECTORY launch config bags
+
+if (EXISTS bags)
+  install(DIRECTORY bags
+          DESTINATION share/${PROJECT_NAME})
+else()
+  message("Bags directory not found. Not installing. This may cause runtime errors!")
+endif()
+
+install(DIRECTORY launch config 
         DESTINATION share/${PROJECT_NAME})
 
 ament_package()
