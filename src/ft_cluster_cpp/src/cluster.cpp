@@ -127,18 +127,19 @@ private:
     
     std::vector<uchar> cluster(const std::vector<Point> & points,
 			       const std::vector<uchar> & class_map,
-			       float epsilon)
+			       float epsilon,
+                               rclcpp::Time stamp)
     {
 	std::vector<uchar> cluster_map(points.size());
         eufs_msgs::msg::ConeArrayWithCovariance cone_array;
         this->get_parameter("frame", cone_array.header.frame_id);
-        cone_array.header.stamp = this->get_clock()->now();
+        cone_array.header.stamp = stamp;
         
         this->gl_cluster.setEps(epsilon);
         
         int cluster_id = 1;
         
-        for (int c = 1; c <= 3; c++) {
+        for (int c = 1; c <= 4; c++) {
             // When we collect high quality points of a particular class, we need to remember
             // their origins in the full array.
             std::vector<int> map_back;
@@ -165,9 +166,10 @@ private:
             std::vector<uchar> class_cluster_map(class_points.size());
 
             std::vector<ConeWithCovariance> * class_cone_array; 
-            if (c == 1) class_cone_array = &cone_array.blue_cones;
+            if      (c == 1) class_cone_array = &cone_array.blue_cones;
             else if (c == 2) class_cone_array = &cone_array.yellow_cones;
-            else class_cone_array = &cone_array.orange_cones;
+            else if (c == 3) class_cone_array = &cone_array.orange_cones;
+            else             class_cone_array = &cone_array.unknown_color_cones;
             
             for (int i = 0; i < class_points.size(); i++) {
                 auto cone = traverse(i, cluster_id, class_neighbors_map, class_cluster_map, class_points, true);
@@ -199,6 +201,7 @@ private:
         cout << "Found " << cone_array.blue_cones.size() << " blue cones" << endl;
         cout << "Found " << cone_array.yellow_cones.size() << " yellow cones" << endl;
         cout << "Found " << cone_array.orange_cones.size() << " orange cones" << endl;
+        cout << "Found " << cone_array.unknown_color_cones.size() << " unknown cones" << endl;
 
         this->cone_array_publisher->publish(cone_array);
 
@@ -213,7 +216,8 @@ private:
 	image.width = request->points.width;
 	image.data = cluster(bytes_to_points(request->points.data),
 			     request->segmentation_mask.data,
-			     this->get_parameter("eps").get_parameter_value().get<float>());
+			     this->get_parameter("eps").get_parameter_value().get<float>(),
+                             request->points.header.stamp);
     }
     
 public:
