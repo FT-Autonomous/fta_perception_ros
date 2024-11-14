@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(eufs_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(ft_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -18,7 +19,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(video_capture src/video_capture.cpp)
-ament_target_dependencies(video_capture rclcpp sensor_msgs eufs_msgs OpenCV)
+ament_target_dependencies(video_capture rclcpp sensor_msgs eufs_msgs OpenCV ft_msgs)
 
 install(TARGETS video_capture
         DESTINATION lib/${PROJECT_NAME})
